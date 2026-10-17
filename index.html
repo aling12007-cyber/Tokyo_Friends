@@ -11,18 +11,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 吉祥物「麻糬」（原創） -->
+  <!-- 吉祥物「小橘」（原創） -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="mochi" viewBox="0 0 120 104">
-      <path d="M60 22c-12-9-26-4-27 6 9-1 18 1 27 7 9-6 18-8 27-7-1-10-15-15-27-6z" fill="#FFC2D6" stroke="#4A3B52" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M60 32c28 0 52 18 52 42 0 16-14 24-52 24S8 90 8 74c0-24 24-42 52-42z" fill="#FFFFFF" stroke="#4A3B52" stroke-width="3.5" stroke-linejoin="round"/>
-      <ellipse cx="42" cy="66" rx="5" ry="6.5" fill="#4A3B52"/>
-      <ellipse cx="78" cy="66" rx="5" ry="6.5" fill="#4A3B52"/>
-      <circle cx="43.8" cy="63.6" r="1.9" fill="#FFFFFF"/>
-      <circle cx="79.8" cy="63.6" r="1.9" fill="#FFFFFF"/>
-      <ellipse cx="30" cy="78" rx="8" ry="4.5" fill="#FFB3C8" opacity=".85"/>
-      <ellipse cx="90" cy="78" rx="8" ry="4.5" fill="#FFB3C8" opacity=".85"/>
-      <path d="M53 76c2 4 5 4 7 0 2 4 5 4 7 0" fill="none" stroke="#4A3B52" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <symbol id="mascot" viewBox="0 0 120 104">
+      <path d="M20 50L27 10l27 22z" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M100 50L93 10 66 32z" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M28 38l2.5-17 13 11z" fill="#FF8FB8"/>
+      <path d="M92 38l-2.5-17-13 11z" fill="#FF8FB8"/>
+      <ellipse cx="60" cy="64" rx="50" ry="37" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5"/>
+      <path d="M52 29q3 7 0 13M60 28v15M68 29q-3 7 0 13" fill="none" stroke="#E8801F" stroke-width="3.5" stroke-linecap="round"/>
+      <ellipse cx="60" cy="81" rx="21" ry="13" fill="#FFF3E0"/>
+      <ellipse cx="40" cy="63" rx="5.5" ry="7" fill="#3B2A45"/>
+      <ellipse cx="80" cy="63" rx="5.5" ry="7" fill="#3B2A45"/>
+      <circle cx="42" cy="60.5" r="2.1" fill="#FFFFFF"/>
+      <circle cx="82" cy="60.5" r="2.1" fill="#FFFFFF"/>
+      <ellipse cx="25" cy="77" rx="8" ry="4.5" fill="#FF6FA0" opacity=".55"/>
+      <ellipse cx="95" cy="77" rx="8" ry="4.5" fill="#FF6FA0" opacity=".55"/>
+      <path d="M56 72h8l-4 4.5z" fill="#FF6FA0" stroke="#3B2A45" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M52 79c2 4 6 4 8 0 2 4 6 4 8 0" fill="none" stroke="#3B2A45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 70L6 66M22 76L5 78M98 70l16-4M98 76l17 2" stroke="#3B2A45" stroke-width="2.4" stroke-linecap="round"/>
     </symbol>
     <symbol id="sparkle" viewBox="0 0 24 24">
       <path d="M12 1c1 6 4 9 11 11-7 2-10 5-11 11-1-6-4-9-11-11 7-2 10-5 11-11z"/>
@@ -37,7 +44,7 @@
     <!-- 1. 手機註冊 -->
     <section id="screen-register" class="screen" hidden>
       <header class="brand">
-        <svg class="brand-mark" aria-hidden="true"><use href="#mochi"/></svg>
+        <svg class="brand-mark" aria-hidden="true"><use href="#mascot"/></svg>
         <span class="brand-text">
           <span class="brand-name">東京友伴</span>
           <span class="brand-sub">TOKYO FRIENDS</span>
@@ -46,7 +53,7 @@
 
       <div class="hero">
         <div class="bubble">一起來交朋友吧！</div>
-        <svg class="hero-mochi" aria-hidden="true"><use href="#mochi"/></svg>
+        <svg class="hero-mochi" aria-hidden="true"><use href="#mascot"/></svg>
         <svg class="spark s1" aria-hidden="true"><use href="#sparkle"/></svg>
         <svg class="spark s2" aria-hidden="true"><use href="#sparkle"/></svg>
         <svg class="spark s3" aria-hidden="true"><use href="#sparkle"/></svg>
@@ -110,7 +117,7 @@
           <div class="avatar-row">
             <div id="avatar-preview" class="avatar-preview" aria-hidden="true">
               <img id="avatar-img" alt="" hidden>
-              <span id="avatar-placeholder" class="avatar-mochi"><svg><use href="#mochi"/></svg></span>
+              <span id="avatar-placeholder" class="avatar-mochi"><svg><use href="#mascot"/></svg></span>
             </div>
             <div class="avatar-actions">
               <label for="avatar-file" class="btn btn-outline btn-small">選擇照片</label>
@@ -181,7 +188,7 @@
 
       <div id="waiting" hidden>
         <div class="intro">
-          <svg class="waiting-mochi" aria-hidden="true"><use href="#mochi"/></svg>
+          <svg class="waiting-mochi" aria-hidden="true"><use href="#mascot"/></svg>
           <p class="eyebrow">報名完成</p>
           <h1>正在幫你找小組</h1>
           <p class="muted">每個月會把住在附近、興趣相近的 4～5 人湊成一組。配對好之後，小組會出現在這裡。</p>

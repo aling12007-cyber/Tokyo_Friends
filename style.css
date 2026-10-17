@@ -1,21 +1,24 @@
-/* 可愛動漫風：粉嫩色・圓體字・貼紙感粗外框 */
+/* 可愛動漫風・繽紛彩虹：圓體字・貼紙感粗外框 */
 :root {
-  --bg: #FFF5F9;
-  --dot: #FFDDEA;
+  --bg: #FFF8E7;
   --paper: #FFFFFF;
-  --ink: #4A3B52;
-  --muted: #74627B;
-  --line: #4A3B52;
-  --soft-line: #F1DCE6;
-  --pink: #FF8DB5;
-  --pink-dark: #FF6FA0;
-  --pink-soft: #FFE3EE;
-  --sky: #9AD8FF;
-  --sky-soft: #E2F4FF;
-  --mint: #A6EBD0;
-  --lemon: #FFE27A;
-  --lemon-soft: #FFF6CF;
-  --lavender: #D3C2FF;
+  --ink: #3B2A45;
+  --muted: #65536E;
+  --line: #3B2A45;
+  --soft-line: #EADCF0;
+  --pink: #FF6FAE;
+  --pink-dark: #FF4D98;
+  --pink-soft: #FFE0EE;
+  --orange: #FFA845;
+  --orange-soft: #FFEBD2;
+  --lemon: #FFD93D;
+  --lemon-soft: #FFF5C4;
+  --mint: #5FDBA0;
+  --mint-soft: #D6F7E8;
+  --sky: #5EBEFF;
+  --sky-soft: #DCF0FF;
+  --lavender: #B99BFF;
+  --lavender-soft: #EDE4FF;
   --error: #C2185B;
   --radius: 18px;
   --round: 'Huninn', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
@@ -31,14 +34,22 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* 水玉背景 */
+/* 彩色紙花背景 */
 body {
   background-color: var(--bg);
-  background-image:
-    radial-gradient(var(--dot) 18%, transparent 19%),
-    radial-gradient(var(--dot) 18%, transparent 19%);
-  background-size: 36px 36px;
-  background-position: 0 0, 18px 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg opacity='.55'%3E%3Ccircle cx='18' cy='22' r='5' fill='%23FF6FAE'/%3E%3Crect x='70' y='14' width='12' height='5' rx='2.5' fill='%235EBEFF' transform='rotate(30 76 16)'/%3E%3Cpath d='M128 20l5 9h-10z' fill='%23FFD93D'/%3E%3Ccircle cx='140' cy='80' r='4' fill='%235FDBA0'/%3E%3Crect x='30' y='86' width='12' height='5' rx='2.5' fill='%23FFA845' transform='rotate(-25 36 88)'/%3E%3Cpath d='M92 70l3 6 6 1-4 4 1 6-6-3-5 3 1-6-4-4 6-1z' fill='%23B99BFF'/%3E%3Ccircle cx='60' cy='138' r='4.5' fill='%23FFD93D'/%3E%3Crect x='112' y='128' width='12' height='5' rx='2.5' fill='%23FF6FAE' transform='rotate(55 118 130)'/%3E%3Cpath d='M14 140l5 9H9z' fill='%235EBEFF'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* 頁面最上面的彩虹條 */
+.app::before {
+  content: '';
+  display: block;
+  height: 10px;
+  background: linear-gradient(90deg,
+    var(--pink) 0 16.6%, var(--orange) 16.6% 33.3%, var(--lemon) 33.3% 50%,
+    var(--mint) 50% 66.6%, var(--sky) 66.6% 83.3%, var(--lavender) 83.3% 100%);
+  border-bottom: 2.5px solid var(--ink);
 }
 
 a { color: #B8336A; font-weight: 700; text-underline-offset: 3px; }
@@ -252,18 +263,41 @@ input:focus, select:focus { background-color: var(--sky-soft); }
   cursor: pointer;
   transition: transform .1s, background-color .15s;
 }
-.chip:hover { background: var(--pink-soft); }
+/* 沒選的時候是淡彩色，選了變成鮮豔色＋浮起來 */
+.chip:nth-child(6n+1) { background: var(--pink-soft); }
+.chip:nth-child(6n+2) { background: var(--orange-soft); }
+.chip:nth-child(6n+3) { background: var(--lemon-soft); }
+.chip:nth-child(6n+4) { background: var(--mint-soft); }
+.chip:nth-child(6n+5) { background: var(--sky-soft); }
+.chip:nth-child(6n+6) { background: var(--lavender-soft); }
+.chip:hover { filter: brightness(.96); }
 .chip[aria-pressed="true"] {
-  background: var(--pink);
   font-weight: 700;
   box-shadow: 0 3px 0 var(--ink);
   transform: translateY(-2px);
 }
 .chip[aria-pressed="true"]::before { content: '♥ '; }
-.chip:nth-child(5n+2)[aria-pressed="true"] { background: var(--sky); }
-.chip:nth-child(5n+3)[aria-pressed="true"] { background: var(--mint); }
-.chip:nth-child(5n+4)[aria-pressed="true"] { background: var(--lemon); }
-.chip:nth-child(5n+5)[aria-pressed="true"] { background: var(--lavender); }
+.chip:nth-child(6n+1)[aria-pressed="true"] { background: var(--pink); }
+.chip:nth-child(6n+2)[aria-pressed="true"] { background: var(--orange); }
+.chip:nth-child(6n+3)[aria-pressed="true"] { background: var(--lemon); }
+.chip:nth-child(6n+4)[aria-pressed="true"] { background: var(--mint); }
+.chip:nth-child(6n+5)[aria-pressed="true"] { background: var(--sky); }
+.chip:nth-child(6n+6)[aria-pressed="true"] { background: var(--lavender); }
+
+/* 個人檔案每一區用不同顏色的圓點 */
+#profile-form > .field:nth-of-type(6n+1) > .field-title::before,
+#profile-form > .field:nth-of-type(6n+1) > label::before,
+#profile-form > .field:nth-of-type(6n+1) > legend::before { background: var(--pink); }
+#profile-form > .field:nth-of-type(6n+2) > label::before,
+#profile-form > .field:nth-of-type(6n+2) > legend::before { background: var(--orange); }
+#profile-form > .field:nth-of-type(6n+3) > label::before,
+#profile-form > .field:nth-of-type(6n+3) > legend::before { background: var(--lemon); }
+#profile-form > .field:nth-of-type(6n+4) > label::before,
+#profile-form > .field:nth-of-type(6n+4) > legend::before { background: var(--mint); }
+#profile-form > .field:nth-of-type(6n+5) > label::before,
+#profile-form > .field:nth-of-type(6n+5) > legend::before { background: var(--sky); }
+#profile-form > .field:nth-of-type(6n+6) > label::before,
+#profile-form > .field:nth-of-type(6n+6) > legend::before { background: var(--lavender); }
 
 /* 頭像 */
 .avatar-row { display: flex; align-items: center; gap: 18px; }
@@ -378,3 +412,23 @@ input:focus, select:focus { background-color: var(--sky-soft); }
 .dialog li::marker { content: '✿ '; color: #B8336A; }
 
 .loading { text-align: center; color: var(--muted); padding: 80px 20px; }
+
+/* 繽紛：每張卡片不同底色 */
+#phone-form { background: var(--sky-soft); }
+#code-form { background: var(--lavender-soft); }
+#group > .card:not(.meet) { background: var(--paper); }
+.meet { background: var(--orange-soft); }
+.summary { background: var(--mint-soft); }
+.summary dt { background: var(--paper); border: 2px solid var(--ink); }
+.bubble { background: var(--lemon); }
+.bubble::after { background: var(--lemon); }
+.avatar-preview { background: var(--orange-soft); }
+.step { background: var(--lemon); }
+.eyebrow { background: var(--pink); }
+.note { background: var(--mint-soft); }
+.tag:nth-child(4n+1) { background: var(--sky-soft); }
+.tag:nth-child(4n+2) { background: var(--pink-soft); }
+.tag:nth-child(4n+3) { background: var(--lemon-soft); }
+.tag:nth-child(4n+4) { background: var(--mint-soft); }
+.dialog { background: var(--lemon-soft); }
+.agree input { accent-color: var(--pink-dark); }
