@@ -4,207 +4,238 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>東京友伴 Tokyo Friends</title>
-  <meta name="description" content="在東京，找到合得來的朋友。以暱稱與興趣配對小組，不公開任何個人資料。">
+  <meta name="description" content="在東京，找到合得來的朋友。東京で気の合う友達を。Find friends in Tokyo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 吉祥物「小橘」（原創） -->
+  <!-- 插畫元件（原創） -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="mascot" viewBox="0 0 120 104">
-      <path d="M20 50L27 10l27 22z" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M100 50L93 10 66 32z" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M28 38l2.5-17 13 11z" fill="#FF8FB8"/>
-      <path d="M92 38l-2.5-17-13 11z" fill="#FF8FB8"/>
-      <ellipse cx="60" cy="64" rx="50" ry="37" fill="#FFB347" stroke="#3B2A45" stroke-width="3.5"/>
-      <path d="M52 29q3 7 0 13M60 28v15M68 29q-3 7 0 13" fill="none" stroke="#E8801F" stroke-width="3.5" stroke-linecap="round"/>
-      <ellipse cx="60" cy="81" rx="21" ry="13" fill="#FFF3E0"/>
-      <ellipse cx="40" cy="63" rx="5.5" ry="7" fill="#3B2A45"/>
-      <ellipse cx="80" cy="63" rx="5.5" ry="7" fill="#3B2A45"/>
-      <circle cx="42" cy="60.5" r="2.1" fill="#FFFFFF"/>
-      <circle cx="82" cy="60.5" r="2.1" fill="#FFFFFF"/>
-      <ellipse cx="25" cy="77" rx="8" ry="4.5" fill="#FF6FA0" opacity=".55"/>
-      <ellipse cx="95" cy="77" rx="8" ry="4.5" fill="#FF6FA0" opacity=".55"/>
-      <path d="M56 72h8l-4 4.5z" fill="#FF6FA0" stroke="#3B2A45" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M52 79c2 4 6 4 8 0 2 4 6 4 8 0" fill="none" stroke="#3B2A45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M22 70L6 66M22 76L5 78M98 70l16-4M98 76l17 2" stroke="#3B2A45" stroke-width="2.4" stroke-linecap="round"/>
+    <symbol id="plum" viewBox="0 0 40 40">
+      <g fill="#FF8FB8" stroke="#3B2A45" stroke-width="2">
+        <circle cx="20" cy="9" r="8"/><circle cx="30.5" cy="16.6" r="8"/><circle cx="26.5" cy="29" r="8"/>
+        <circle cx="13.5" cy="29" r="8"/><circle cx="9.5" cy="16.6" r="8"/>
+      </g>
+      <circle cx="20" cy="20" r="5.5" fill="#FFD93D" stroke="#3B2A45" stroke-width="2"/>
     </symbol>
-    <symbol id="sparkle" viewBox="0 0 24 24">
-      <path d="M12 1c1 6 4 9 11 11-7 2-10 5-11 11-1-6-4-9-11-11 7-2 10-5 11-11z"/>
+    <symbol id="bubbletea" viewBox="0 0 48 72">
+      <path d="M27 2l-4 22" stroke="#3B2A45" stroke-width="7" stroke-linecap="round"/>
+      <path d="M27 2l-4 22" stroke="#FF6FAE" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M6 22h36l-5 44a4 4 0 0 1-4 4H15a4 4 0 0 1-4-4z" fill="#F7D3AE" stroke="#3B2A45" stroke-width="2.5" stroke-linejoin="round"/>
+      <rect x="3" y="17" width="42" height="7" rx="3.5" fill="#FFFFFF" stroke="#3B2A45" stroke-width="2.5"/>
+      <g fill="#3B2A45"><circle cx="16" cy="61" r="3.2"/><circle cx="24" cy="63" r="3.2"/><circle cx="32" cy="61" r="3.2"/><circle cx="20" cy="55" r="3.2"/><circle cx="28" cy="55" r="3.2"/></g>
+      <circle cx="18" cy="38" r="2.2" fill="#3B2A45"/><circle cx="30" cy="38" r="2.2" fill="#3B2A45"/>
+      <ellipse cx="13.5" cy="43" rx="3.5" ry="2" fill="#FF6FAE" opacity=".6"/><ellipse cx="34.5" cy="43" rx="3.5" ry="2" fill="#FF6FAE" opacity=".6"/>
+      <path d="M21 43q3 3 6 0" fill="none" stroke="#3B2A45" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="lantern" viewBox="0 0 30 44">
+      <circle cx="15" cy="38" r="5" fill="#FFE27A" opacity=".7"/>
+      <path d="M2 2h26l-5 30H7z" fill="currentColor" stroke="#3B2A45" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M8 2l2 30M22 2l-2 30" stroke="#3B2A45" stroke-width="1.2" opacity=".35"/>
+      <circle cx="15" cy="36" r="2.6" fill="#FF9F1C" stroke="#3B2A45" stroke-width="1.4"/>
     </symbol>
   </svg>
 
   <main class="app">
-    <div id="demo-banner" class="demo-banner" hidden>
-      示範模式：尚未連接 Firebase，驗證碼請輸入 <strong>123456</strong>，資料只存在這台裝置。
+    <div class="langbar" role="group" aria-label="Language">
+      <button type="button" class="lang-btn" data-lang="zh">中文</button>
+      <button type="button" class="lang-btn" data-lang="ja">日本語</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
     </div>
+
+    <div id="demo-banner" class="demo-banner" data-i18n-html="demo" hidden></div>
 
     <!-- 1. 手機註冊 -->
     <section id="screen-register" class="screen" hidden>
       <header class="brand">
-        <svg class="brand-mark" aria-hidden="true"><use href="#mascot"/></svg>
+        <svg class="brand-mark" aria-hidden="true"><use href="#plum"/></svg>
         <span class="brand-text">
-          <span class="brand-name">東京友伴</span>
+          <span class="brand-name" data-i18n="brand"></span>
           <span class="brand-sub">TOKYO FRIENDS</span>
         </span>
       </header>
 
-      <div class="hero">
-        <div class="bubble">一起來交朋友吧！</div>
-        <svg class="hero-mochi" aria-hidden="true"><use href="#mascot"/></svg>
-        <svg class="spark s1" aria-hidden="true"><use href="#sparkle"/></svg>
-        <svg class="spark s2" aria-hidden="true"><use href="#sparkle"/></svg>
-        <svg class="spark s3" aria-hidden="true"><use href="#sparkle"/></svg>
-      </div>
+      <!-- 台灣 × 東京 插畫 -->
+      <svg class="banner" viewBox="0 0 360 128" role="img" data-i18n-aria="bannerAlt">
+        <defs><clipPath id="banner-clip"><rect x="2" y="2" width="356" height="124" rx="20"/></clipPath></defs>
+        <g clip-path="url(#banner-clip)">
+          <rect x="0" y="0" width="360" height="128" fill="#DCF0FF"/>
+          <g fill="#FFFFFF" opacity=".9">
+            <ellipse cx="170" cy="26" rx="22" ry="8"/><ellipse cx="184" cy="20" rx="13" ry="9"/>
+            <ellipse cx="330" cy="40" rx="18" ry="6.5"/><ellipse cx="320" cy="35" rx="10" ry="7"/>
+          </g>
+          <use href="#plum" x="18" y="12" width="26" height="26"/>
+          <use href="#plum" x="44" y="34" width="15" height="15"/>
+          <use href="#lantern" x="92" y="10" width="26" height="38" style="color:#FF7A59"/>
+          <use href="#lantern" x="124" y="34" width="19" height="28" style="color:#FFC13D"/>
+          <use href="#lantern" x="70" y="52" width="15" height="22" style="color:#FF8FB8"/>
+          <use href="#lantern" x="150" y="62" width="13" height="19" style="color:#FFA845"/>
+          <!-- 台北 101 -->
+          <g fill="#7FD6C2" stroke="#3B2A45" stroke-width="2" stroke-linejoin="round">
+            <path d="M213 6v14" fill="none"/>
+            <rect x="206" y="20" width="14" height="10" rx="1.5"/>
+            <path d="M202 37h22l3-7h-28z"/><path d="M202 44h22l3-7h-28z"/><path d="M202 51h22l3-7h-28z"/>
+            <path d="M202 58h22l3-7h-28z"/><path d="M202 65h22l3-7h-28z"/><path d="M202 72h22l3-7h-28z"/>
+            <path d="M202 79h22l3-7h-28z"/><path d="M202 86h22l3-7h-28z"/>
+            <rect x="199" y="86" width="28" height="24"/>
+          </g>
+          <!-- 愛心 -->
+          <path d="M252 50c-3-5-11-3-10 3 1 4 6 7 10 10 4-3 9-6 10-10 1-6-7-8-10-3z" fill="#FF6FAE" stroke="#3B2A45" stroke-width="2"/>
+          <!-- 東京鐵塔 -->
+          <g stroke="#3B2A45" stroke-width="2" stroke-linejoin="round">
+            <path d="M290 10v30" fill="none"/>
+            <path d="M270 110l17-70h6l17 70h-9l-11-47-11 47z" fill="#FF5A5A"/>
+            <rect x="282" y="44" width="16" height="5" rx="1.5" fill="#FFFFFF"/>
+            <rect x="279" y="64" width="22" height="6" rx="1.5" fill="#FFFFFF"/>
+            <path d="M276 92h28" fill="none"/>
+          </g>
+          <path d="M-10 106C50 94 110 114 175 105S300 92 370 104V140H-10z" fill="#B7EBC4" stroke="#3B2A45" stroke-width="2.5"/>
+          <use href="#bubbletea" x="22" y="62" width="40" height="60"/>
+        </g>
+        <rect x="2" y="2" width="356" height="124" rx="20" fill="none" stroke="#3B2A45" stroke-width="2.5"/>
+      </svg>
 
       <div class="intro">
-        <h1>在東京，<br>找到<span class="hl">合得來</span>的朋友</h1>
-        <p class="muted">用手機號碼註冊，確認每個人都是真實使用者。</p>
+        <h1 data-i18n-html="heroTitle"></h1>
+        <p class="muted" data-i18n="heroSub"></p>
       </div>
 
       <form id="phone-form" class="card" novalidate>
         <div class="field">
-          <label for="phone">手機號碼</label>
+          <label for="phone" data-i18n="phoneLabel"></label>
           <div class="row">
-            <select id="country" aria-label="國碼">
-              <option value="+81">+81 日本</option>
-              <option value="+886">+886 台灣</option>
+            <select id="country" data-i18n-aria="countryLabel">
+              <option value="+81">+81</option>
+              <option value="+886">+886</option>
               <option value="+1">+1</option>
-              <option value="+82">+82 韓國</option>
+              <option value="+82">+82</option>
+              <option value="+852">+852</option>
               <option value="+44">+44</option>
             </select>
             <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="090-1234-5678" required>
           </div>
         </div>
-        <button id="send-code" type="submit" class="btn btn-outline">傳送驗證碼</button>
+        <button id="send-code" type="submit" class="btn btn-outline" data-i18n="sendCode"></button>
         <div id="recaptcha-container"></div>
       </form>
 
       <form id="code-form" class="card" novalidate hidden>
         <div class="field">
-          <label for="code">簡訊驗證碼（6 位數）</label>
+          <label for="code" data-i18n="codeLabel"></label>
           <input id="code" class="code-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" required>
         </div>
-        <button type="submit" class="btn btn-primary">驗證並繼續</button>
-        <button id="change-phone" type="button" class="btn-link">換一個號碼</button>
+        <button type="submit" class="btn btn-primary" data-i18n="verify"></button>
+        <button id="change-phone" type="button" class="btn-link" data-i18n="changePhone"></button>
       </form>
 
       <p id="register-error" class="error" role="alert"></p>
-
-      <div class="note">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-        <p>手機號碼只用來驗證身分，<strong>不會公開</strong>給任何人，也不會用來推銷。</p>
-      </div>
+      <p class="note small" data-i18n-html="privacyNote"></p>
     </section>
 
     <!-- 2. 個人檔案 -->
     <section id="screen-profile" class="screen" hidden>
       <div class="topbar">
-        <span class="step">步驟 2 / 3</span>
-        <button id="logout-1" type="button" class="btn-link">登出</button>
+        <span class="step" data-i18n="step2"></span>
+        <button id="logout-1" type="button" class="btn-link" data-i18n="logout"></button>
       </div>
 
       <div class="intro">
-        <h1>介紹一下你自己</h1>
-        <p class="muted">不需要真名、照片或住址，用暱稱就好。</p>
+        <h1 data-i18n="profileTitle"></h1>
+        <p class="muted" data-i18n="profileSub"></p>
       </div>
 
       <form id="profile-form" novalidate>
         <div class="field avatar-field">
-          <span class="field-title">頭像照片（選填）</span>
+          <span class="field-title" data-i18n="avatarTitle"></span>
           <div class="avatar-row">
-            <div id="avatar-preview" class="avatar-preview" aria-hidden="true">
+            <div class="avatar-preview" aria-hidden="true">
               <img id="avatar-img" alt="" hidden>
-              <span id="avatar-placeholder" class="avatar-mochi"><svg><use href="#mascot"/></svg></span>
+              <span id="avatar-placeholder" class="avatar-ph"><svg><use href="#plum"/></svg></span>
             </div>
             <div class="avatar-actions">
-              <label for="avatar-file" class="btn btn-outline btn-small">選擇照片</label>
+              <label for="avatar-file" class="btn btn-outline btn-small" data-i18n="choosePhoto"></label>
               <input id="avatar-file" class="visually-hidden" type="file" accept="image/*">
-              <button id="avatar-remove" type="button" class="btn-link" hidden>移除照片</button>
+              <button id="avatar-remove" type="button" class="btn-link" data-i18n="removePhoto" hidden></button>
             </div>
           </div>
-          <p class="hint">不一定要放臉，風景、寵物、插圖都可以。照片只有同組的人看得到。</p>
+          <p class="hint" data-i18n="avatarHint"></p>
         </div>
 
         <div class="field">
-          <label for="nick">暱稱</label>
-          <input id="nick" type="text" maxlength="20" placeholder="例：Mochi" required>
+          <label for="nick" data-i18n="nick"></label>
+          <input id="nick" type="text" maxlength="20" data-i18n-ph="nickPh" required>
         </div>
 
         <div class="field">
-          <label for="area">常出沒的區域</label>
-          <select id="area" required>
-            <option value="">請選擇</option>
-          </select>
-          <input id="area-other" type="text" maxlength="30" placeholder="請填寫地區或車站，例：千葉・船橋" hidden>
+          <label for="area" data-i18n="area"></label>
+          <select id="area" required></select>
+          <input id="area-other" type="text" maxlength="30" data-i18n-ph="areaOtherPh" hidden>
         </div>
 
         <fieldset class="field">
-          <legend>興趣（可複選，最多 8 個）<span id="interest-count" class="count"></span></legend>
+          <legend><span data-i18n="interests"></span><span id="interest-count" class="count"></span></legend>
           <div id="chips-interests" class="chips"></div>
         </fieldset>
 
         <fieldset class="field">
-          <legend>想一起做的事（可複選）</legend>
+          <legend data-i18n="activities"></legend>
           <div id="chips-activities" class="chips"></div>
-          <input id="activity-other" type="text" maxlength="40" placeholder="其他想做的事（選填），例：一起去看相撲" aria-label="其他想一起做的事">
+          <input id="activity-other" type="text" maxlength="40" data-i18n-ph="activityOtherPh" data-i18n-aria="activityOtherPh">
         </fieldset>
 
         <fieldset class="field">
-          <legend>會說的語言</legend>
+          <legend data-i18n="langs"></legend>
           <div id="chips-langs" class="chips"></div>
         </fieldset>
 
         <fieldset class="field">
-          <legend>想找什麼樣的朋友</legend>
+          <legend data-i18n="wants"></legend>
           <div id="chips-wants" class="chips"></div>
         </fieldset>
 
         <div class="field">
-          <label for="years">來日本多久了</label>
-          <select id="years" required>
-            <option value="">請選擇</option>
-          </select>
+          <label for="years" data-i18n="years"></label>
+          <select id="years" required></select>
         </div>
 
         <label class="agree">
           <input id="agree" type="checkbox" required>
-          <span>我同意<a href="#rules" id="open-rules">社群守則</a>：不推銷、不傳教、不騷擾，第一次見面在公開場所。</span>
+          <span data-i18n-html="agree"></span>
         </label>
 
         <p id="profile-error" class="error" role="alert"></p>
-        <button type="submit" class="btn btn-primary">儲存並開始配對</button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
       </form>
     </section>
 
     <!-- 3. 配對結果 -->
     <section id="screen-match" class="screen" hidden>
       <div class="topbar">
-        <button id="edit-profile" type="button" class="btn-link">編輯個人檔案</button>
-        <button id="logout-2" type="button" class="btn-link">登出</button>
+        <button id="edit-profile" type="button" class="btn-link" data-i18n="editProfile"></button>
+        <button id="logout-2" type="button" class="btn-link" data-i18n="logout"></button>
       </div>
 
       <div id="waiting" hidden>
         <div class="intro">
-          <svg class="waiting-mochi" aria-hidden="true"><use href="#mascot"/></svg>
-          <p class="eyebrow">報名完成</p>
-          <h1>正在幫你找小組</h1>
-          <p class="muted">每個月會把住在附近、興趣相近的 4～5 人湊成一組。配對好之後，小組會出現在這裡。</p>
+          <svg class="waiting-art" aria-hidden="true"><use href="#bubbletea"/></svg>
+          <p class="eyebrow" data-i18n="doneEyebrow"></p>
+          <h1 data-i18n="waitingTitle"></h1>
+          <p class="muted" data-i18n="waitingSub"></p>
         </div>
         <div class="card summary" id="my-summary"></div>
       </div>
 
       <div id="group" hidden>
         <div class="intro">
-          <p class="eyebrow">配對完成</p>
-          <h1>這是你這個月的小組</h1>
+          <p class="eyebrow" data-i18n="matchedEyebrow"></p>
+          <h1 data-i18n="groupTitle"></h1>
         </div>
         <div class="card">
           <ul id="members" class="members"></ul>
           <div class="common">
-            <div class="label">你們的共同點</div>
+            <div class="label" data-i18n="common"></div>
             <div id="common-tags" class="tags"></div>
           </div>
         </div>
@@ -213,33 +244,27 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
           </span>
           <div>
-            <div class="meet-title">建議第一次見面</div>
-            <div id="meet-text" class="muted small">週末白天・公開場所（咖啡廳、餐廳）</div>
+            <div class="meet-title" data-i18n="meetTitle"></div>
+            <div id="meet-text" class="muted small"></div>
           </div>
         </div>
-        <a id="chat-link" class="btn btn-primary" href="#" target="_blank" rel="noopener" hidden>加入小組聊天</a>
+        <a id="chat-link" class="btn btn-primary" href="#" target="_blank" rel="noopener" data-i18n="joinChat" hidden></a>
       </div>
 
       <div class="footer-links">
-        <a href="#rules" id="open-rules-2">安全守則</a>
-        <a href="mailto:REPLACE_WITH_CONTACT_EMAIL?subject=Tokyo%20Friends%20檢舉">檢舉</a>
+        <a href="#rules" class="open-rules" data-i18n="rules"></a>
+        <a id="report-link" href="mailto:REPLACE_WITH_CONTACT_EMAIL?subject=Tokyo%20Friends%20report" data-i18n="report"></a>
       </div>
     </section>
 
     <!-- 社群守則 -->
     <dialog id="rules-dialog" class="dialog">
-      <h2>社群守則</h2>
-      <ul>
-        <li>只用暱稱，不要求別人提供真名、住址、工作地點。</li>
-        <li>禁止推銷、直銷、傳教、募款、招攬投資。</li>
-        <li>禁止騷擾或以交往為目的的私訊；這裡是交朋友的地方。</li>
-        <li>第一次見面請選公開場所，並告訴信任的人你去哪裡。</li>
-        <li>遇到不舒服的事請檢舉，違規者會被移除。</li>
-      </ul>
-      <form method="dialog"><button class="btn btn-primary">我知道了</button></form>
+      <h2 data-i18n="rulesTitle"></h2>
+      <ul id="rules-list"></ul>
+      <form method="dialog"><button class="btn btn-primary" data-i18n="gotIt"></button></form>
     </dialog>
 
-    <div id="loading" class="loading">載入中…</div>
+    <div id="loading" class="loading">…</div>
   </main>
 
   <script type="module" src="app.js"></script>

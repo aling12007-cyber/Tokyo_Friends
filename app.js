@@ -1,37 +1,35 @@
 import { firebaseConfig } from './firebase-config.js';
-
-// ---------- 選項 ----------
-const AREA_GROUPS = [
-  ['東京 23 區', ['新宿・新大久保', '澀谷・原宿・表參道', '池袋・高田馬場', '上野・淺草・秋葉原', '東京站・銀座・日本橋', '品川・目黑・五反田', '惠比壽・中目黑・自由之丘', '六本木・麻布・赤坂', '中野・高圓寺', '下北澤・三軒茶屋', '錦糸町・押上・龜戶', '北千住・赤羽', '豐洲・月島・台場', '蒲田・大森']],
-  ['東京 多摩', ['吉祥寺・三鷹', '立川・國立', '八王子・高尾', '町田', '調布・府中']],
-  ['埼玉', ['大宮', '浦和', '川口・蕨・西川口', '所澤', '川越', '越谷・草加', '和光・朝霞・志木', '春日部']],
-  ['神奈川', ['橫濱站周邊', '港未來・關內・中華街', '新橫濱・日吉', '川崎・武藏小杉', '溝之口・登戶', '相模原・橋本', '湘南・藤澤・茅崎', '鎌倉・逗子', '橫須賀・三浦', '厚木・海老名']]
-];
-const AREA_OTHER = '__other';
-const INTERESTS = [
-  '咖啡廳', '美食探店', '居酒屋', '甜點', '料理', '烘焙',
-  '登山健行', '露營', '溫泉旅行', '國內旅行', '海外旅行', '散步・街拍',
-  '攝影', '畫畫', '手作', '寫作',
-  '讀書', '電影', '日劇・韓劇', '動漫', '遊戲', '桌遊', '密室逃脫',
-  '音樂・Live', 'K-POP', '卡拉 OK', '樂器',
-  '運動', '健身', '跑步', '瑜伽', '游泳', '球類運動', '滑雪・滑板',
-  '日本傳統文化', '神社・寺院', '祭典・花火', '茶道・花道', '和服',
-  '美術館・展覽', '時尚', '寵物', '程式・科技', '投資理財', '語言學習'
-];
-const ACTIVITIES = [
-  '喝咖啡聊天', '一起吃飯', '喝一杯', '逛街', '逛美術館・展覽',
-  '爬山・健行', '去溫泉', '一日小旅行', '賞花・賞楓', '看祭典・花火',
-  '參拜神社・寺院', '唱 KTV', '玩桌遊', '看電影', '去 Live・演唱會',
-  '一起運動', '讀書會', '一起讀書・自習', '語言交換', '一起做料理'
-];
-const LANGS = ['中文', '日文', '英文', '韓文', '其他'];
-const WANTS = ['聊天朋友', '一起出去玩', '語言交換', '生活互助'];
-const YEARS = ['剛來（半年內）', '半年～2 年', '2～5 年', '5 年以上'];
-const MAX_INTERESTS = 8;
-const AVATAR_SIZE = 256;
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
+const MAX_INTERESTS = 8;
+const AVATAR_SIZE = 256;
+const AREA_OTHER = '__other';
+
+// ---------- 語言 ----------
+const LANG_KEY = 'tokyo-friends-lang';
+function initialLang() {
+  try { const saved = localStorage.getItem(LANG_KEY); if (LANGS_UI.includes(saved)) return saved; } catch { /* 無法讀取時忽略 */ }
+  const nav = (navigator.language || '').toLowerCase();
+  if (nav.startsWith('ja')) return 'ja';
+  if (nav.startsWith('zh')) return 'zh';
+  return 'en';
+}
+let lang = initialLang();
+const LI = () => ({ zh: 1, ja: 2, en: 3 }[lang]);
+
+function t(key, vars) {
+  let s = T[lang][key] ?? T.zh[key] ?? key;
+  if (vars && typeof s === 'string') for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+  return s;
+}
+
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...AREA_GROUPS.flatMap((g) => g.items)];
+const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
+// 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
+function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
+function labels(ids) { return (ids || []).map(label).join(lang === 'en' ? ', ' : '、'); }
 
 // ---------- 後端：Firebase 或示範模式 ----------
 let backend;
@@ -44,12 +42,12 @@ async function makeFirebaseBackend() {
 
   const app = initializeApp(firebaseConfig);
   const auth = authMod.getAuth(app);
-  auth.languageCode = 'zh-TW';
   const db = fs.getFirestore(app);
   let verifier = null;
   let confirmation = null;
 
   return {
+    setLang(l) { auth.languageCode = { zh: 'zh-TW', ja: 'ja', en: 'en' }[l]; },
     onUser(cb) { authMod.onAuthStateChanged(auth, (u) => cb(u ? { uid: u.uid } : null)); },
     async sendCode(phone) {
       if (!verifier) verifier = new authMod.RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
@@ -85,11 +83,12 @@ async function makeFirebaseBackend() {
 }
 
 function makeDemoBackend() {
-  const KEY = 'tokyo-friends-demo';
+  const KEY = 'tokyo-friends-demo-v2';
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   const write = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* 無法儲存時忽略 */ } };
   let listener = () => {};
   return {
+    setLang() {},
     onUser(cb) { listener = cb; const s = read(); cb(s.uid ? { uid: s.uid } : null); },
     async sendCode() { await new Promise((r) => setTimeout(r, 400)); },
     async verify(code) {
@@ -98,25 +97,51 @@ function makeDemoBackend() {
     },
     async getProfile() { return read().profile || null; },
     async saveProfile(uid, profile) { const s = read(); s.profile = profile; write(s); },
-    async getAvatar() { return read().avatar || null; },
+    async getAvatar(uid) { return uid === 'demo-user' ? read().avatar || null : null; },
     async saveAvatar(uid, img) { const s = read(); if (img) s.avatar = img; else delete s.avatar; write(s); },
     async getGroup() {
       const p = read().profile;
       if (!p) return null;
+      const metas = t('demoMembers');
       return {
         members: [
-          { uid: 'demo-user', nick: `${p.nick}（你）`, meta: `${p.years}・${p.langs.join('、')}` },
-          { nick: 'Kenta', meta: '日本人・日文、英文・想練中文' },
-          { nick: 'Ana', meta: '在日半年・英文、葡萄牙文' },
-          { nick: 'Jiwoo', meta: '在日 1 年・韓文、日文' }
+          { uid: 'demo-user', nick: lang === 'en' ? `${p.nick} (${t('you')})` : `${p.nick}（${t('you')}）`, meta: `${label(p.years)}・${labels(p.langs)}` },
+          { nick: 'Kenta', meta: metas[0] },
+          { nick: 'Ana', meta: metas[1] },
+          { nick: 'Jiwoo', meta: metas[2] }
         ],
         common: [...p.interests.slice(0, 2), ...(p.activities || []).slice(0, 1), p.area],
-        meet: `週末白天・${p.area.split('・').slice(-2).join('・')}附近的咖啡廳（公開場所）`,
+        meet: t('demoMeet', { area: label(p.area) }),
         chatUrl: ''
       };
     },
     async logout() { const s = read(); delete s.uid; write(s); listener(null); }
   };
+}
+
+// ---------- 套用翻譯 ----------
+function applyI18n() {
+  document.documentElement.lang = HTML_LANG[lang];
+  document.title = `${t('brand')}｜Tokyo Friends`;
+  for (const n of document.querySelectorAll('[data-i18n]')) n.textContent = t(n.dataset.i18n);
+  for (const n of document.querySelectorAll('[data-i18n-html]')) n.innerHTML = t(n.dataset.i18nHtml); // 來源是 i18n.js 的固定文字
+  for (const n of document.querySelectorAll('[data-i18n-ph]')) n.placeholder = t(n.dataset.i18nPh);
+  for (const n of document.querySelectorAll('[data-i18n-aria]')) n.setAttribute('aria-label', t(n.dataset.i18nAria));
+  for (const b of document.querySelectorAll('.lang-btn')) b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
+  const ul = $('rules-list');
+  ul.innerHTML = '';
+  for (const r of t('rulesList')) { const li = document.createElement('li'); li.textContent = r; ul.appendChild(li); }
+  $('loading').textContent = t('loading');
+  if (backend) backend.setLang(lang);
+}
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch { /* 無法儲存時忽略 */ }
+  applyI18n();
+  // 重畫跟語言有關的動態內容，保留目前輸入
+  if (!$('screen-profile').hidden) refreshProfileOptions();
+  if (!$('screen-match').hidden && currentUser && currentProfile) showMatch(currentUser.uid, currentProfile);
 }
 
 // ---------- 畫面切換 ----------
@@ -127,56 +152,76 @@ function show(name) {
 }
 
 // ---------- 標籤選擇 ----------
+const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set() };
+
 function renderChips(containerId, options, selected, max) {
   const box = $(containerId);
   box.innerHTML = '';
-  for (const label of options) {
+  for (const opt of options) {
+    const id = opt[0];
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'chip';
-    b.textContent = label;
-    b.setAttribute('aria-pressed', selected.has(label) ? 'true' : 'false');
+    b.textContent = opt[LI()];
+    b.setAttribute('aria-pressed', selected.has(id) ? 'true' : 'false');
     b.addEventListener('click', () => {
-      if (selected.has(label)) selected.delete(label);
-      else if (!max || selected.size < max) selected.add(label);
-      b.setAttribute('aria-pressed', selected.has(label) ? 'true' : 'false');
-      if (containerId === 'chips-interests') $('interest-count').textContent = `已選 ${selected.size} 個`;
+      if (selected.has(id)) selected.delete(id);
+      else if (!max || selected.size < max) selected.add(id);
+      b.setAttribute('aria-pressed', selected.has(id) ? 'true' : 'false');
+      if (containerId === 'chips-interests') updateInterestCount();
     });
     box.appendChild(b);
   }
 }
 
-function fillSelect(id, options, value) {
-  const sel = $(id);
-  sel.length = 1;
-  for (const o of options) sel.add(new Option(o, o));
-  if (value) sel.value = value;
+function updateInterestCount() { $('interest-count').textContent = t('selectedN', { n: picked.interests.size }); }
+
+function fillYears(value) {
+  const sel = $('years');
+  sel.innerHTML = '';
+  sel.add(new Option(t('yearsPick'), ''));
+  for (const o of YEARS) sel.add(new Option(o[LI()], o[0]));
+  sel.value = value || '';
 }
 
 function fillAreaSelect(value) {
   const sel = $('area');
-  sel.length = 1;
-  for (const g of [...sel.querySelectorAll('optgroup')]) g.remove();
+  sel.innerHTML = '';
+  sel.add(new Option(t('areaPick'), ''));
   const known = new Set();
-  for (const [label, items] of AREA_GROUPS) {
+  for (const g of AREA_GROUPS) {
     const og = document.createElement('optgroup');
-    og.label = label;
-    for (const a of items) {
-      const v = `${label === '東京 23 區' || label === '東京 多摩' ? '東京' : label}・${a}`;
-      og.appendChild(new Option(a, v));
-      known.add(v);
-    }
+    og.label = g.label[LI() - 1];
+    for (const item of g.items) { og.appendChild(new Option(item[LI()], item[0])); known.add(item[0]); }
     sel.appendChild(og);
   }
-  sel.appendChild(new Option('其他（自己填寫）', AREA_OTHER));
+  sel.add(new Option(t('areaOther'), AREA_OTHER));
   const other = $('area-other');
-  if (value && !known.has(value)) { sel.value = AREA_OTHER; other.value = value; }
-  else { sel.value = value || ''; other.value = ''; }
+  if (value && value !== AREA_OTHER && !known.has(value)) { sel.value = AREA_OTHER; other.value = value; }
+  else sel.value = value || '';
   other.hidden = sel.value !== AREA_OTHER;
 }
 
-const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set() };
-let avatarData = null;      // 目前表單上的頭像（data URL）
+function renderAllChips() {
+  renderChips('chips-interests', INTERESTS, picked.interests, MAX_INTERESTS);
+  renderChips('chips-activities', ACTIVITIES, picked.activities);
+  renderChips('chips-langs', LANGS, picked.langs);
+  renderChips('chips-wants', WANTS, picked.wants);
+  updateInterestCount();
+}
+
+// 切換語言時：保留已輸入的值，只換文字
+function refreshProfileOptions() {
+  const areaVal = $('area').value === AREA_OTHER ? ($('area-other').value || AREA_OTHER) : $('area').value;
+  const otherText = $('area-other').value;
+  const yearsVal = $('years').value;
+  fillAreaSelect(areaVal);
+  if ($('area').value === AREA_OTHER) $('area-other').value = otherText;
+  fillYears(yearsVal);
+  renderAllChips();
+}
+
+let avatarData = null;
 let avatarChanged = false;
 
 function setAvatarPreview(img) {
@@ -189,17 +234,13 @@ function setAvatarPreview(img) {
 function loadProfileForm(p, avatar) {
   $('nick').value = p?.nick || '';
   fillAreaSelect(p?.area);
-  fillSelect('years', YEARS, p?.years);
+  fillYears(p?.years);
   picked.interests = new Set(p?.interests || []);
   picked.activities = new Set(p?.activities || []);
   picked.langs = new Set(p?.langs || []);
   picked.wants = new Set(p?.wants || []);
-  renderChips('chips-interests', INTERESTS, picked.interests, MAX_INTERESTS);
-  renderChips('chips-activities', ACTIVITIES, picked.activities);
-  renderChips('chips-langs', LANGS, picked.langs);
-  renderChips('chips-wants', WANTS, picked.wants);
+  renderAllChips();
   $('activity-other').value = p?.activityOther || '';
-  $('interest-count').textContent = `已選 ${picked.interests.size} 個`;
   avatarData = avatar || null;
   avatarChanged = false;
   setAvatarPreview(avatarData);
@@ -219,7 +260,7 @@ function resizeImage(file) {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = AVATAR_SIZE;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#FBF8F1';
+      ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
       ctx.drawImage(img, sx, sy, side, side, 0, 0, AVATAR_SIZE, AVATAR_SIZE);
       URL.revokeObjectURL(url);
@@ -234,8 +275,7 @@ function resizeImage(file) {
 }
 
 // ---------- 配對頁 ----------
-// 粉紅・水藍・薄荷・薰衣草・檸檬
-const AVATAR_COLORS = [['#FFD6E4', '#8C2453'], ['#CDEBFF', '#1D4F7A'], ['#C9F2E3', '#1E5E47'], ['#E5DAFF', '#4B2F86'], ['#FFF1B8', '#6B5410']];
+const AVATAR_COLORS = [['#FFE0EE', '#8C2453'], ['#DCF0FF', '#1D4F7A'], ['#D6F7E8', '#1E5E47'], ['#EDE4FF', '#4B2F86'], ['#FFF5C4', '#6B5410']];
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -272,36 +312,40 @@ function renderSummary(p, avatar) {
   head.append(big, el('div', 'member-name', p.nick));
   box.appendChild(head);
   const dl = el('dl');
-  const todo = [...(p.activities || []), p.activityOther].filter(Boolean).join('、');
-  const rows = [['區域', p.area], ['興趣', p.interests.join('、')], ['想一起', todo || '—'], ['語言', p.langs.join('、')], ['想找', p.wants.join('、')], ['在日', p.years]];
+  const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
+  const rows = [
+    [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumLangs'), labels(p.langs)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
+  ];
   for (const [k, v] of rows) { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); }
   box.appendChild(dl);
 }
 
 async function renderGroup(g) {
-  const ul = $('members');
-  ul.innerHTML = '';
   const members = g.members || [];
   const avatars = await Promise.all(members.map((m) => (m.uid ? backend.getAvatar(m.uid).catch(() => null) : null)));
+  const ul = $('members');
+  ul.innerHTML = '';
   members.forEach((m, i) => {
     const li = el('li', 'member');
-    const av = makeAvatar(m.nick, i, avatars[i]);
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
     text.appendChild(el('div', 'member-meta', m.meta || ''));
-    li.append(av, text);
+    li.append(makeAvatar(m.nick, i, avatars[i]), text);
     ul.appendChild(li);
   });
   const tags = $('common-tags');
   tags.innerHTML = '';
-  for (const t of g.common || []) tags.appendChild(el('span', 'tag', t));
-  if (g.meet) $('meet-text').textContent = g.meet;
+  for (const tag of g.common || []) tags.appendChild(el('span', 'tag', label(tag)));
+  $('meet-text').textContent = g.meet || t('meetDefault');
   const link = $('chat-link');
   const safeUrl = typeof g.chatUrl === 'string' && /^https:\/\//.test(g.chatUrl) ? g.chatUrl : '';
   link.hidden = !safeUrl;
   if (safeUrl) link.href = safeUrl;
 }
 
+let currentUser = null;
+let currentProfile = null;
 let currentAvatar = null;
 
 async function showMatch(uid, profile) {
@@ -315,11 +359,11 @@ async function showMatch(uid, profile) {
 // ---------- 錯誤訊息 ----------
 function authErrorText(e) {
   const code = e?.code || '';
-  if (code.includes('invalid-phone-number')) return '手機號碼格式不正確，請確認後再試。';
-  if (code.includes('too-many-requests')) return '嘗試次數太多，請稍後再試。';
-  if (code.includes('invalid-verification-code')) return '驗證碼不正確。';
-  if (code.includes('code-expired')) return '驗證碼已過期，請重新傳送。';
-  return '發生錯誤，請稍後再試。';
+  if (code.includes('invalid-phone-number')) return t('errBadPhone');
+  if (code.includes('too-many-requests')) return t('errTooMany');
+  if (code.includes('invalid-verification-code')) return t('errBadCode');
+  if (code.includes('code-expired')) return t('errExpired');
+  return t('errGeneric');
 }
 
 function normalizePhone(country, raw) {
@@ -329,15 +373,24 @@ function normalizePhone(country, raw) {
 }
 
 // ---------- 啟動 ----------
-let currentUser = null;
-let currentProfile = null;
-
 async function start() {
+  applyI18n();
   $('demo-banner').hidden = !DEMO;
+
+  for (const b of document.querySelectorAll('.lang-btn')) b.addEventListener('click', () => setLang(b.dataset.lang));
+
+  // 「社群守則」連結（翻譯後會重新產生，所以用委派）
+  const dialog = $('rules-dialog');
+  document.addEventListener('click', (ev) => {
+    const a = ev.target.closest('.open-rules');
+    if (a) { ev.preventDefault(); dialog.showModal(); }
+  });
+
   try {
     backend = DEMO ? makeDemoBackend() : await makeFirebaseBackend();
-  } catch (e) {
-    $('loading').textContent = '無法連線，請重新整理頁面。';
+    backend.setLang(lang);
+  } catch {
+    $('loading').textContent = t('errConn');
     return;
   }
 
@@ -352,6 +405,37 @@ async function start() {
     else { loadProfileForm(null, currentAvatar); show('profile'); }
   });
 
+  $('phone-form').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    $('register-error').textContent = '';
+    const raw = $('phone').value.trim();
+    if (raw.replace(/[^\d]/g, '').length < 8) { $('register-error').textContent = t('errPhoneEmpty'); return; }
+    const btn = $('send-code');
+    btn.disabled = true; btn.textContent = t('sending');
+    try {
+      await backend.sendCode(normalizePhone($('country').value, raw));
+      $('phone-form').hidden = true;
+      $('code-form').hidden = false;
+      $('code').focus();
+    } catch (e) {
+      $('register-error').textContent = authErrorText(e);
+    } finally {
+      btn.disabled = false; btn.textContent = t('sendCode');
+    }
+  });
+
+  $('code-form').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    $('register-error').textContent = '';
+    const code = $('code').value.trim();
+    if (!/^\d{6}$/.test(code)) { $('register-error').textContent = t('errCode6'); return; }
+    try { await backend.verify(code); } catch (e) { $('register-error').textContent = authErrorText(e); }
+  });
+
+  $('change-phone').addEventListener('click', () => {
+    $('code-form').hidden = true; $('phone-form').hidden = false; $('code').value = '';
+  });
+
   $('area').addEventListener('change', () => {
     const isOther = $('area').value === AREA_OTHER;
     $('area-other').hidden = !isOther;
@@ -362,14 +446,14 @@ async function start() {
     const file = ev.target.files && ev.target.files[0];
     ev.target.value = '';
     if (!file) return;
-    if (!file.type.startsWith('image/')) { $('profile-error').textContent = '請選擇圖片檔。'; return; }
+    if (!file.type.startsWith('image/')) { $('profile-error').textContent = t('errNotImage'); return; }
     try {
       avatarData = await resizeImage(file);
       avatarChanged = true;
       setAvatarPreview(avatarData);
       $('profile-error').textContent = '';
     } catch {
-      $('profile-error').textContent = '這張照片讀不出來，換一張試試。';
+      $('profile-error').textContent = t('errBadImage');
     }
   });
 
@@ -377,37 +461,6 @@ async function start() {
     avatarData = null;
     avatarChanged = true;
     setAvatarPreview(null);
-  });
-
-  $('phone-form').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    $('register-error').textContent = '';
-    const raw = $('phone').value.trim();
-    if (raw.replace(/[^\d]/g, '').length < 8) { $('register-error').textContent = '請輸入手機號碼。'; return; }
-    const btn = $('send-code');
-    btn.disabled = true; btn.textContent = '傳送中…';
-    try {
-      await backend.sendCode(normalizePhone($('country').value, raw));
-      $('phone-form').hidden = true;
-      $('code-form').hidden = false;
-      $('code').focus();
-    } catch (e) {
-      $('register-error').textContent = authErrorText(e);
-    } finally {
-      btn.disabled = false; btn.textContent = '傳送驗證碼';
-    }
-  });
-
-  $('code-form').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    $('register-error').textContent = '';
-    const code = $('code').value.trim();
-    if (!/^\d{6}$/.test(code)) { $('register-error').textContent = '請輸入 6 位數驗證碼。'; return; }
-    try { await backend.verify(code); } catch (e) { $('register-error').textContent = authErrorText(e); }
-  });
-
-  $('change-phone').addEventListener('click', () => {
-    $('code-form').hidden = true; $('phone-form').hidden = false; $('code').value = '';
   });
 
   $('profile-form').addEventListener('submit', async (ev) => {
@@ -424,14 +477,14 @@ async function start() {
       wants: [...picked.wants],
       years: $('years').value
     };
-    if (!profile.nick) return void (err.textContent = '請填寫暱稱。');
-    if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? '請填寫你的區域。' : '請選擇區域。');
-    if (!profile.interests.length) return void (err.textContent = '請至少選一個興趣。');
-    if (!profile.activities.length && !profile.activityOther) return void (err.textContent = '請至少選一件想一起做的事。');
-    if (!profile.langs.length) return void (err.textContent = '請至少選一個語言。');
-    if (!profile.wants.length) return void (err.textContent = '請選擇想找的朋友類型。');
-    if (!profile.years) return void (err.textContent = '請選擇來日本多久。');
-    if (!$('agree').checked) return void (err.textContent = '請先同意社群守則。');
+    if (!profile.nick) return void (err.textContent = t('errNick'));
+    if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? t('errAreaOther') : t('errArea'));
+    if (!profile.interests.length) return void (err.textContent = t('errInterest'));
+    if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));
+    if (!profile.langs.length) return void (err.textContent = t('errLang'));
+    if (!profile.wants.length) return void (err.textContent = t('errWant'));
+    if (!profile.years) return void (err.textContent = t('errYears'));
+    if (!$('agree').checked) return void (err.textContent = t('errAgree'));
     err.textContent = '';
     try {
       await backend.saveProfile(currentUser.uid, profile);
@@ -442,18 +495,13 @@ async function start() {
       }
       currentProfile = profile;
       showMatch(currentUser.uid, profile);
-    } catch (e) {
-      err.textContent = '儲存失敗，請稍後再試。';
+    } catch {
+      err.textContent = t('errSave');
     }
   });
 
   $('edit-profile').addEventListener('click', () => { loadProfileForm(currentProfile, currentAvatar); show('profile'); });
   for (const id of ['logout-1', 'logout-2']) $(id).addEventListener('click', () => backend.logout());
-
-  const dialog = $('rules-dialog');
-  for (const id of ['open-rules', 'open-rules-2']) {
-    $(id).addEventListener('click', (ev) => { ev.preventDefault(); dialog.showModal(); });
-  }
 }
 
 start();

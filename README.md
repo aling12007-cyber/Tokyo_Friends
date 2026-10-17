@@ -11,6 +11,7 @@
 | 檔案 | 用途 |
 |---|---|
 | `index.html` / `style.css` / `app.js` | 網頁本體 |
+| `i18n.js` | 中文・日文・英文的所有文字和選項 |
 | `firebase-config.js` | Firebase 設定（空白時為示範模式） |
 | `firestore.rules` | 資料庫存取規則 |
 
@@ -38,13 +39,13 @@
     { "uid": "uid1", "nick": "Mochi", "meta": "在日 2～5 年・中文、日文" },
     { "uid": "uid2", "nick": "Kenta", "meta": "日本人・日文、英文" }
   ],
-  "common": ["咖啡廳", "登山健行", "新宿・澀谷"],
+  "common": ["cafe", "hiking", "shinjuku"],
   "meet": "11/8（六）14:00・新宿的咖啡廳",
   "chatUrl": "https://line.me/ti/g/xxxxxx"
 }
 ```
 
-`members` 裡放 `uid` 才會顯示對方的頭像照片。組員重新整理網頁就會看到自己的小組。
+`members` 裡放 `uid` 才會顯示對方的頭像照片。`common` 可以放選項的 id（例如 `cafe`、`shinjuku`，在 `i18n.js` 裡查），網頁會自動翻成使用者選的語言；直接寫文字也可以，但就不會翻譯。組員重新整理網頁就會看到自己的小組。
 
 ## 費用
 
