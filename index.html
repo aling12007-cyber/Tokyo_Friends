@@ -7,10 +7,28 @@
   <meta name="description" content="在東京，找到合得來的朋友。以暱稱與興趣配對小組，不公開任何個人資料。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 吉祥物「麻糬」（原創） -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="mochi" viewBox="0 0 120 104">
+      <path d="M60 22c-12-9-26-4-27 6 9-1 18 1 27 7 9-6 18-8 27-7-1-10-15-15-27-6z" fill="#FFC2D6" stroke="#4A3B52" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M60 32c28 0 52 18 52 42 0 16-14 24-52 24S8 90 8 74c0-24 24-42 52-42z" fill="#FFFFFF" stroke="#4A3B52" stroke-width="3.5" stroke-linejoin="round"/>
+      <ellipse cx="42" cy="66" rx="5" ry="6.5" fill="#4A3B52"/>
+      <ellipse cx="78" cy="66" rx="5" ry="6.5" fill="#4A3B52"/>
+      <circle cx="43.8" cy="63.6" r="1.9" fill="#FFFFFF"/>
+      <circle cx="79.8" cy="63.6" r="1.9" fill="#FFFFFF"/>
+      <ellipse cx="30" cy="78" rx="8" ry="4.5" fill="#FFB3C8" opacity=".85"/>
+      <ellipse cx="90" cy="78" rx="8" ry="4.5" fill="#FFB3C8" opacity=".85"/>
+      <path d="M53 76c2 4 5 4 7 0 2 4 5 4 7 0" fill="none" stroke="#4A3B52" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="sparkle" viewBox="0 0 24 24">
+      <path d="M12 1c1 6 4 9 11 11-7 2-10 5-11 11-1-6-4-9-11-11 7-2 10-5 11-11z"/>
+    </symbol>
+  </svg>
+
   <main class="app">
     <div id="demo-banner" class="demo-banner" hidden>
       示範模式：尚未連接 Firebase，驗證碼請輸入 <strong>123456</strong>，資料只存在這台裝置。
@@ -18,17 +36,24 @@
 
     <!-- 1. 手機註冊 -->
     <section id="screen-register" class="screen" hidden>
-      <div class="seigaiha" aria-hidden="true"></div>
       <header class="brand">
-        <span class="brand-mark" aria-hidden="true">友</span>
+        <svg class="brand-mark" aria-hidden="true"><use href="#mochi"/></svg>
         <span class="brand-text">
           <span class="brand-name">東京友伴</span>
           <span class="brand-sub">TOKYO FRIENDS</span>
         </span>
       </header>
 
+      <div class="hero">
+        <div class="bubble">一起來交朋友吧！</div>
+        <svg class="hero-mochi" aria-hidden="true"><use href="#mochi"/></svg>
+        <svg class="spark s1" aria-hidden="true"><use href="#sparkle"/></svg>
+        <svg class="spark s2" aria-hidden="true"><use href="#sparkle"/></svg>
+        <svg class="spark s3" aria-hidden="true"><use href="#sparkle"/></svg>
+      </div>
+
       <div class="intro">
-        <h1>在東京，<br>找到合得來的朋友</h1>
+        <h1>在東京，<br>找到<span class="hl">合得來</span>的朋友</h1>
         <p class="muted">用手機號碼註冊，確認每個人都是真實使用者。</p>
       </div>
 
@@ -85,7 +110,7 @@
           <div class="avatar-row">
             <div id="avatar-preview" class="avatar-preview" aria-hidden="true">
               <img id="avatar-img" alt="" hidden>
-              <span id="avatar-placeholder">友</span>
+              <span id="avatar-placeholder" class="avatar-mochi"><svg><use href="#mochi"/></svg></span>
             </div>
             <div class="avatar-actions">
               <label for="avatar-file" class="btn btn-outline btn-small">選擇照片</label>
@@ -156,6 +181,7 @@
 
       <div id="waiting" hidden>
         <div class="intro">
+          <svg class="waiting-mochi" aria-hidden="true"><use href="#mochi"/></svg>
           <p class="eyebrow">報名完成</p>
           <h1>正在幫你找小組</h1>
           <p class="muted">每個月會把住在附近、興趣相近的 4～5 人湊成一組。配對好之後，小組會出現在這裡。</p>

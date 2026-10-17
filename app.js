@@ -234,8 +234,8 @@ function resizeImage(file) {
 }
 
 // ---------- 配對頁 ----------
-// 藍・朱・抹茶・藤・黄土
-const AVATAR_COLORS = [['#E3E9EF', '#1A3550'], ['#F5E4DC', '#8A2A17'], ['#E6EBDD', '#3F5228'], ['#ECE6F0', '#4E3A66'], ['#F1E9D6', '#6A5220']];
+// 粉紅・水藍・薄荷・薰衣草・檸檬
+const AVATAR_COLORS = [['#FFD6E4', '#8C2453'], ['#CDEBFF', '#1D4F7A'], ['#C9F2E3', '#1E5E47'], ['#E5DAFF', '#4B2F86'], ['#FFF1B8', '#6B5410']];
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
