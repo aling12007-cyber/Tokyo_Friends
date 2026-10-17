@@ -20,7 +20,7 @@
 
 ## 上線步驟
 
-1. **開 GitHub Pages**：repo 的 Settings → Pages → Source 選 `Deploy from a branch`，Branch 選 `main` / `(root)`，儲存。幾分鐘後網址會是 `https://aling12007-cyber.github.io/tokyo_friends/`。
+1. **開 GitHub Pages**：repo 的 Settings → Pages → Source 選 `Deploy from a branch`，Branch 選 `main` / `(root)`，儲存。幾分鐘後網址會是 `https://aling12007-cyber.github.io/Tokyo_Friends/`。
 2. **建立 Firebase 專案**：到 https://console.firebase.google.com 新增專案。
 3. **開啟手機驗證**：Authentication → Sign-in method → 啟用「電話」。在 Settings → Authorized domains 加入 `aling12007-cyber.github.io`。
 4. **建立資料庫**：Firestore Database → 建立（地區選 `asia-northeast1` 東京）→ 規則分頁貼上 `firestore.rules` 的內容並發布。
