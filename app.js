@@ -154,24 +154,66 @@ function show(name) {
 // ---------- 標籤選擇 ----------
 const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set() };
 
-// 分類顯示：每一類一個小標題＋一排標籤，顏色依類別
+// 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
+const openCat = {};   // 每個區塊目前打開的分類 index
+
 function renderChipGroups(containerId, groups, options, selected, max) {
   const byId = new Map(options.map((o) => [o[0], o]));
   const box = $(containerId);
   box.innerHTML = '';
+  const parts = [];
+
   groups.forEach((g, gi) => {
     const wrap = document.createElement('div');
     wrap.className = 'chip-group';
     wrap.dataset.c = String(gi % 6);
-    const head = document.createElement('div');
-    head.className = 'chip-cat';
-    head.textContent = g.label[LI() - 1];
-    const row = document.createElement('div');
-    row.className = 'chips';
-    wrap.append(head, row);
+
+    const panelId = `${containerId}-panel-${gi}`;
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'cat-head';
+    head.setAttribute('aria-controls', panelId);
+    const name = document.createElement('span');
+    name.className = 'cat-name';
+    name.textContent = g.label[LI() - 1];
+    const badge = document.createElement('span');
+    badge.className = 'cat-count';
+    const arrow = document.createElement('span');
+    arrow.className = 'cat-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    head.append(name, badge, arrow);
+
+    const panel = document.createElement('div');
+    panel.className = 'chips cat-panel';
+    panel.id = panelId;
+
+    const updateBadge = () => {
+      const n = g.ids.filter((id) => selected.has(id)).length;
+      badge.textContent = n ? String(n) : '';
+      badge.hidden = !n;
+      wrap.classList.toggle('has-picked', n > 0);
+    };
+    addChips(panel, g.ids.map((id) => byId.get(id)).filter(Boolean), selected, max, containerId, updateBadge);
+    updateBadge();
+
+    wrap.append(head, panel);
     box.appendChild(wrap);
-    addChips(row, g.ids.map((id) => byId.get(id)).filter(Boolean), selected, max, containerId);
+    parts.push({ head, panel, wrap });
+    head.addEventListener('click', () => {
+      openCat[containerId] = openCat[containerId] === gi ? -1 : gi;
+      sync();
+    });
   });
+
+  function sync() {
+    parts.forEach((p, i) => {
+      const open = openCat[containerId] === i;
+      p.head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      p.panel.hidden = !open;
+      p.wrap.classList.toggle('open', open);
+    });
+  }
+  sync();
 }
 
 function renderChips(containerId, options, selected, max) {
@@ -180,7 +222,7 @@ function renderChips(containerId, options, selected, max) {
   addChips(box, options, selected, max, containerId);
 }
 
-function addChips(box, options, selected, max, containerId) {
+function addChips(box, options, selected, max, containerId, onChange) {
   for (const opt of options) {
     const id = opt[0];
     const b = document.createElement('button');
@@ -193,6 +235,7 @@ function addChips(box, options, selected, max, containerId) {
       else if (!max || selected.size < max) selected.add(id);
       b.setAttribute('aria-pressed', selected.has(id) ? 'true' : 'false');
       if (containerId === 'chips-interests') updateInterestCount();
+      if (onChange) onChange();
     });
     box.appendChild(b);
   }

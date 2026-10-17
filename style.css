@@ -456,3 +456,38 @@ html[lang="en"] { --round: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
 .sub-label::before { display: none !important; }
 .free-box .chips { margin-bottom: 2px; }
 .free-box .sub-label:not(:first-child) { margin-top: 6px; }
+
+/* 大分類 → 小項目（折疊） */
+.chip-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 8px; }
+.chip-group { padding: 0; gap: 0; overflow: hidden; border-radius: 14px; background: var(--c-soft); }
+.chip-group.open { grid-column: 1 / -1; background: var(--paper); }
+.cat-head {
+  width: 100%;
+  min-height: 48px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.chip-group.open .cat-head { background: var(--c); border-bottom: 2px solid var(--ink); }
+.cat-name { flex: 1; min-width: 0; }
+.cat-count {
+  min-width: 22px; height: 22px; padding: 0 6px;
+  border-radius: 999px;
+  background: var(--ink); color: var(--paper);
+  font-size: 12px; line-height: 22px; text-align: center;
+}
+.cat-arrow {
+  width: 9px; height: 9px; flex: none;
+  border-right: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform .15s;
+}
+.chip-group.open .cat-arrow { transform: rotate(-135deg) translate(-2px, 0); }
+.cat-panel { padding: 12px; }
+.cat-panel[hidden] { display: none !important; }
+.chip-group.has-picked:not(.open) { box-shadow: 0 3px 0 var(--ink); }
