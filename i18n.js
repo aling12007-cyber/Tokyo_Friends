@@ -238,3 +238,23 @@ export const YEARS = [
   ['5y+', '5 年以上', '5 年以上', '5+ years'],
   ['local', '日本人・在日本長大', '日本人・日本育ち', 'Japanese / grew up here']
 ];
+
+// ---------- 分類（每類一個顏色） ----------
+export const INTEREST_GROUPS = [
+  { label: ['美食', 'グルメ', 'Food'], ids: ['cafe', 'food', 'tw-food', 'bubbletea', 'izakaya', 'sweets', 'cooking', 'baking'] },
+  { label: ['戶外・旅行', 'アウトドア・旅行', 'Outdoors & travel'], ids: ['hiking', 'camping', 'onsen', 'travel-jp', 'travel-abroad', 'walking'] },
+  { label: ['運動', 'スポーツ', 'Sports'], ids: ['sports', 'gym', 'running', 'yoga', 'swimming', 'ballsports', 'snow'] },
+  { label: ['娛樂', 'エンタメ', 'Entertainment'], ids: ['movies', 'dramas', 'anime', 'games', 'boardgames', 'escape', 'karaoke'] },
+  { label: ['音樂', '音楽', 'Music'], ids: ['music', 'kpop', 'instrument'] },
+  { label: ['藝文・創作', 'アート・創作', 'Arts & making'], ids: ['photo', 'drawing', 'crafts', 'writing', 'reading', 'museums', 'fashion'] },
+  { label: ['日本文化', '日本文化', 'Japanese culture'], ids: ['jp-culture', 'shrines', 'festivals', 'tea', 'kimono'] },
+  { label: ['生活・學習', '暮らし・学び', 'Life & learning'], ids: ['pets', 'languages', 'tech', 'investing'] }
+];
+
+export const ACTIVITY_GROUPS = [
+  { label: ['吃吃喝喝', '食べる・飲む', 'Eat & drink'], ids: ['coffee', 'meal', 'tw-restaurant', 'drinks', 'cook'] },
+  { label: ['出門走走', 'おでかけ', 'Go out'], ids: ['shopping', 'museum', 'hike', 'onsen', 'daytrip'] },
+  { label: ['季節・傳統', '季節・伝統行事', 'Seasons & traditions'], ids: ['seasons', 'festival', 'shrine'] },
+  { label: ['室內玩樂', 'インドアで遊ぶ', 'Indoor fun'], ids: ['karaoke', 'boardgame', 'movie', 'concert'] },
+  { label: ['學習・運動', '学ぶ・体を動かす', 'Learn & move'], ids: ['study', 'bookclub', 'exchange', 'sport'] }
+];

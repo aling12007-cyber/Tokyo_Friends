@@ -414,3 +414,32 @@ html[lang="en"] { --round: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
 /* 小組頁的卡片之間留空間；首頁提示文字正常換行 */
 #group, #waiting { display: flex; flex-direction: column; gap: 18px; }
 #screen-register .note { display: block; }
+
+/* 分類標籤：每類一個顏色 */
+.chip-groups { display: flex; flex-direction: column; gap: 14px; }
+.chip-group {
+  --c: var(--pink); --c-soft: var(--pink-soft);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  padding: 10px 12px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.chip-group[data-c="1"] { --c: var(--orange); --c-soft: var(--orange-soft); }
+.chip-group[data-c="2"] { --c: var(--mint); --c-soft: var(--mint-soft); }
+.chip-group[data-c="3"] { --c: var(--sky); --c-soft: var(--sky-soft); }
+.chip-group[data-c="4"] { --c: var(--lavender); --c-soft: var(--lavender-soft); }
+.chip-group[data-c="5"] { --c: var(--lemon); --c-soft: var(--lemon-soft); }
+.chip-cat {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--c);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 1px 12px;
+}
+.chip-group .chip,
+.chip-group .chip:nth-child(n) { background: var(--c-soft); }
+.chip-group .chip[aria-pressed="true"],
+.chip-group .chip:nth-child(n)[aria-pressed="true"] { background: var(--c); }

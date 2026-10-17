@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -154,9 +154,33 @@ function show(name) {
 // ---------- 標籤選擇 ----------
 const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set() };
 
+// 分類顯示：每一類一個小標題＋一排標籤，顏色依類別
+function renderChipGroups(containerId, groups, options, selected, max) {
+  const byId = new Map(options.map((o) => [o[0], o]));
+  const box = $(containerId);
+  box.innerHTML = '';
+  groups.forEach((g, gi) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chip-group';
+    wrap.dataset.c = String(gi % 6);
+    const head = document.createElement('div');
+    head.className = 'chip-cat';
+    head.textContent = g.label[LI() - 1];
+    const row = document.createElement('div');
+    row.className = 'chips';
+    wrap.append(head, row);
+    box.appendChild(wrap);
+    addChips(row, g.ids.map((id) => byId.get(id)).filter(Boolean), selected, max, containerId);
+  });
+}
+
 function renderChips(containerId, options, selected, max) {
   const box = $(containerId);
   box.innerHTML = '';
+  addChips(box, options, selected, max, containerId);
+}
+
+function addChips(box, options, selected, max, containerId) {
   for (const opt of options) {
     const id = opt[0];
     const b = document.createElement('button');
@@ -203,8 +227,8 @@ function fillAreaSelect(value) {
 }
 
 function renderAllChips() {
-  renderChips('chips-interests', INTERESTS, picked.interests, MAX_INTERESTS);
-  renderChips('chips-activities', ACTIVITIES, picked.activities);
+  renderChipGroups('chips-interests', INTEREST_GROUPS, INTERESTS, picked.interests, MAX_INTERESTS);
+  renderChipGroups('chips-activities', ACTIVITY_GROUPS, ACTIVITIES, picked.activities);
   renderChips('chips-langs', LANGS, picked.langs);
   renderChips('chips-wants', WANTS, picked.wants);
   updateInterestCount();
