@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -25,7 +25,7 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
@@ -152,7 +152,7 @@ function show(name) {
 }
 
 // ---------- 標籤選擇 ----------
-const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set() };
+const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set() };
 
 // 分類顯示：每一類一個小標題＋一排標籤，顏色依類別
 function renderChipGroups(containerId, groups, options, selected, max) {
@@ -200,6 +200,14 @@ function addChips(box, options, selected, max, containerId) {
 
 function updateInterestCount() { $('interest-count').textContent = t('selectedN', { n: picked.interests.size }); }
 
+function fillLifestyle(value) {
+  const sel = $('lifestyle');
+  sel.innerHTML = '';
+  sel.add(new Option(t('lifestylePick'), ''));
+  for (const o of LIFESTYLES) sel.add(new Option(o[LI()], o[0]));
+  sel.value = value || '';
+}
+
 function fillYears(value) {
   const sel = $('years');
   sel.innerHTML = '';
@@ -231,6 +239,7 @@ function renderAllChips() {
   renderChipGroups('chips-activities', ACTIVITY_GROUPS, ACTIVITIES, picked.activities);
   renderChips('chips-langs', LANGS, picked.langs);
   renderChips('chips-wants', WANTS, picked.wants);
+  renderChips('chips-free', FREE_TIMES, picked.freeTime);
   updateInterestCount();
 }
 
@@ -239,6 +248,8 @@ function refreshProfileOptions() {
   const areaVal = $('area').value === AREA_OTHER ? ($('area-other').value || AREA_OTHER) : $('area').value;
   const otherText = $('area-other').value;
   const yearsVal = $('years').value;
+  const lifeVal = $('lifestyle').value;
+  fillLifestyle(lifeVal);
   fillAreaSelect(areaVal);
   if ($('area').value === AREA_OTHER) $('area-other').value = otherText;
   fillYears(yearsVal);
@@ -259,6 +270,8 @@ function loadProfileForm(p, avatar) {
   $('nick').value = p?.nick || '';
   fillAreaSelect(p?.area);
   fillYears(p?.years);
+  fillLifestyle(p?.lifestyle);
+  picked.freeTime = new Set(p?.freeTime || []);
   picked.interests = new Set(p?.interests || []);
   picked.activities = new Set(p?.activities || []);
   picked.langs = new Set(p?.langs || []);
@@ -339,6 +352,7 @@ function renderSummary(p, avatar) {
   const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
   const rows = [
     [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
     [t('sumLangs'), labels(p.langs)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
   ];
   for (const [k, v] of rows) { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); }
@@ -466,6 +480,15 @@ async function start() {
     if (isOther) $('area-other').focus();
   });
 
+  // 選了生活型態、而且還沒選時段時，自動先勾常見的時段
+  $('lifestyle').addEventListener('change', () => {
+    const v = $('lifestyle').value;
+    if (v && picked.freeTime.size === 0) {
+      for (const id of FREE_TIME_DEFAULTS[v] || []) picked.freeTime.add(id);
+      renderChips('chips-free', FREE_TIMES, picked.freeTime);
+    }
+  });
+
   $('avatar-file').addEventListener('change', async (ev) => {
     const file = ev.target.files && ev.target.files[0];
     ev.target.value = '';
@@ -499,6 +522,8 @@ async function start() {
       activityOther: $('activity-other').value.trim().slice(0, 40),
       langs: [...picked.langs],
       wants: [...picked.wants],
+      lifestyle: $('lifestyle').value,
+      freeTime: [...picked.freeTime],
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = t('errNick'));
@@ -507,6 +532,8 @@ async function start() {
     if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));
     if (!profile.langs.length) return void (err.textContent = t('errLang'));
     if (!profile.wants.length) return void (err.textContent = t('errWant'));
+    if (!profile.lifestyle) return void (err.textContent = t('errLifestyle'));
+    if (!profile.freeTime.length) return void (err.textContent = t('errFreeTime'));
     if (!profile.years) return void (err.textContent = t('errYears'));
     if (!$('agree').checked) return void (err.textContent = t('errAgree'));
     err.textContent = '';

@@ -22,6 +22,8 @@ export const T = {
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
     langs: '會說的語言', wants: '想找什麼樣的朋友',
+    freeTime: '空閒時間', lifestyle: '你的生活型態', lifestylePick: '請選擇', freeTimeWhen: '通常什麼時候有空（可複選）',
+    errLifestyle: '請選擇生活型態。', errFreeTime: '請至少選一個有空的時段。', sumFree: '有空',
     years: '來日本多久了', yearsPick: '請選擇',
     agree: '我同意<a href="#rules" class="open-rules">社群守則</a>：不推銷、不傳教、不騷擾，第一次見面在公開場所。',
     save: '儲存並開始配對', editProfile: '編輯個人檔案',
@@ -64,6 +66,8 @@ export const T = {
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
     langs: '話せる言語', wants: 'どんな友達を探してる？',
+    freeTime: '空いている時間', lifestyle: 'ライフスタイル', lifestylePick: '選んでください', freeTimeWhen: 'だいたい空いている時間（複数選択可）',
+    errLifestyle: 'ライフスタイルを選んでください。', errFreeTime: '空いている時間を 1 つ以上選んでください。', sumFree: '空き時間',
     years: '日本に来てどのくらい？', yearsPick: '選んでください',
     agree: '<a href="#rules" class="open-rules">コミュニティルール</a>に同意します：勧誘・宗教勧誘・ハラスメント禁止、初対面は公共の場所で。',
     save: '保存してマッチング開始', editProfile: 'プロフィールを編集',
@@ -106,6 +110,8 @@ export const T = {
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
     langs: 'Languages you speak', wants: 'What kind of friends?',
+    freeTime: 'Free time', lifestyle: 'Your lifestyle', lifestylePick: 'Choose one', freeTimeWhen: 'When are you usually free? (pick any)',
+    errLifestyle: 'Please choose your lifestyle.', errFreeTime: 'Please pick at least one time you’re free.', sumFree: 'Free',
     years: 'How long have you been in Japan?', yearsPick: 'Choose one',
     agree: 'I agree to the <a href="#rules" class="open-rules">community rules</a>: no selling, no recruiting, no harassment, and first meetups in public places.',
     save: 'Save & start matching', editProfile: 'Edit profile',
@@ -258,3 +264,33 @@ export const ACTIVITY_GROUPS = [
   { label: ['室內玩樂', 'インドアで遊ぶ', 'Indoor fun'], ids: ['karaoke', 'boardgame', 'movie', 'concert'] },
   { label: ['學習・運動', '学ぶ・体を動かす', 'Learn & move'], ids: ['study', 'bookclub', 'exchange', 'sport'] }
 ];
+
+export const LIFESTYLES = [
+  ['office', '上班族', '会社員', 'Office worker'],
+  ['student', '學生', '学生', 'Student'],
+  ['shift', '打工・排班制', 'アルバイト・シフト制', 'Part-time / shift work'],
+  ['freelance', '自由業・自營', 'フリーランス・自営業', 'Freelance / self-employed'],
+  ['home', '家管・育兒中', '主婦・主夫・子育て中', 'Homemaker / parenting'],
+  ['jobhunting', '求職中', '求職中', 'Job hunting'],
+  ['other', '其他', 'その他', 'Other']
+];
+
+export const FREE_TIMES = [
+  ['weekday-day', '平日白天', '平日の昼', 'Weekday daytime'],
+  ['weekday-night', '平日晚上', '平日の夜', 'Weekday evenings'],
+  ['sat', '週六', '土曜日', 'Saturdays'],
+  ['sun', '週日', '日曜日', 'Sundays'],
+  ['holiday', '國定假日', '祝日', 'Public holidays'],
+  ['irregular', '不固定（看排班）', '不定期（シフト次第）', 'Varies (shift-based)']
+];
+
+// 選了生活型態時，自動先勾的時段（還沒選任何時段時才會套用）
+export const FREE_TIME_DEFAULTS = {
+  office: ['weekday-night', 'sat', 'sun', 'holiday'],
+  student: ['weekday-night', 'sat', 'sun'],
+  shift: ['irregular'],
+  freelance: ['weekday-day', 'weekday-night'],
+  home: ['weekday-day'],
+  jobhunting: ['weekday-day', 'weekday-night'],
+  other: []
+};

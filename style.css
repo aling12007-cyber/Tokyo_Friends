@@ -443,3 +443,16 @@ html[lang="en"] { --round: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
 .chip-group .chip:nth-child(n) { background: var(--c-soft); }
 .chip-group .chip[aria-pressed="true"],
 .chip-group .chip:nth-child(n)[aria-pressed="true"] { background: var(--c); }
+
+/* 空閒時間 */
+.free-box {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sub-label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.sub-label::before { display: none !important; }
+.free-box .chips { margin-bottom: 2px; }
+.free-box .sub-label:not(:first-child) { margin-top: 6px; }
