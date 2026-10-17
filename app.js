@@ -138,7 +138,8 @@ function loadProfileForm(p) {
 }
 
 // ---------- 配對頁 ----------
-const AVATAR_COLORS = [['#E2EFEC', '#164F4C'], ['#FBEDE4', '#8A3A14'], ['#E4E9F6', '#22397A'], ['#F3E8F1', '#6B2A5E'], ['#F1F0DD', '#5A5414']];
+// 藍・朱・抹茶・藤・黄土
+const AVATAR_COLORS = [['#E3E9EF', '#1A3550'], ['#F5E4DC', '#8A2A17'], ['#E6EBDD', '#3F5228'], ['#ECE6F0', '#4E3A66'], ['#F1E9D6', '#6A5220']];
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
