@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 每個人只能讀寫自己的個人檔案，而且只能存這幾個欄位（不存手機號碼）
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nick', 'area', 'interests', 'langs', 'wants', 'years', 'updatedAt'])
+        && request.resource.data.nick is string
+        && request.resource.data.nick.size() > 0
+        && request.resource.data.nick.size() <= 20
+        && request.resource.data.interests is list
+        && request.resource.data.interests.size() <= 6
+        && request.resource.data.langs is list
+        && request.resource.data.wants is list;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 小組由管理員在 Firebase 主控台建立；成員只能看到自己所在的小組
+    match /groups/{groupId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.memberUids;
+      allow write: if false;
+    }
+  }
+}

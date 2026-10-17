@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>東京友伴 Tokyo Friends</title>
+  <meta name="description" content="在東京，找到合得來的朋友。以暱稱與興趣配對小組，不公開任何個人資料。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <div id="demo-banner" class="demo-banner" hidden>
+      示範模式：尚未連接 Firebase，驗證碼請輸入 <strong>123456</strong>，資料只存在這台裝置。
+    </div>
+
+    <!-- 1. 手機註冊 -->
+    <section id="screen-register" class="screen" hidden>
+      <header class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M15 14.2c.5-.1 1-.2 1.5-.2 2.5 0 4.5 1.7 4.5 4.5"/></svg>
+        </span>
+        <span class="brand-name">東京友伴</span>
+      </header>
+
+      <div class="intro">
+        <h1>在東京，<br>找到合得來的朋友</h1>
+        <p class="muted">用手機號碼註冊，確認每個人都是真實使用者。</p>
+      </div>
+
+      <form id="phone-form" class="card" novalidate>
+        <div class="field">
+          <label for="phone">手機號碼</label>
+          <div class="row">
+            <select id="country" aria-label="國碼">
+              <option value="+81">+81 日本</option>
+              <option value="+886">+886 台灣</option>
+              <option value="+1">+1</option>
+              <option value="+82">+82 韓國</option>
+              <option value="+44">+44</option>
+            </select>
+            <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="090-1234-5678" required>
+          </div>
+        </div>
+        <button id="send-code" type="submit" class="btn btn-outline">傳送驗證碼</button>
+        <div id="recaptcha-container"></div>
+      </form>
+
+      <form id="code-form" class="card" novalidate hidden>
+        <div class="field">
+          <label for="code">簡訊驗證碼（6 位數）</label>
+          <input id="code" class="code-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" required>
+        </div>
+        <button type="submit" class="btn btn-primary">驗證並繼續</button>
+        <button id="change-phone" type="button" class="btn-link">換一個號碼</button>
+      </form>
+
+      <p id="register-error" class="error" role="alert"></p>
+
+      <div class="note">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <p>手機號碼只用來驗證身分，<strong>不會公開</strong>給任何人，也不會用來推銷。</p>
+      </div>
+    </section>
+
+    <!-- 2. 個人檔案 -->
+    <section id="screen-profile" class="screen" hidden>
+      <div class="topbar">
+        <span class="step">步驟 2 / 3</span>
+        <button id="logout-1" type="button" class="btn-link">登出</button>
+      </div>
+
+      <div class="intro">
+        <h1>介紹一下你自己</h1>
+        <p class="muted">不需要真名、照片或住址，用暱稱就好。</p>
+      </div>
+
+      <form id="profile-form" novalidate>
+        <div class="field">
+          <label for="nick">暱稱</label>
+          <input id="nick" type="text" maxlength="20" placeholder="例：Mochi" required>
+        </div>
+
+        <div class="field">
+          <label for="area">常出沒的區域</label>
+          <select id="area" required>
+            <option value="">請選擇</option>
+          </select>
+        </div>
+
+        <fieldset class="field">
+          <legend>興趣（可複選，最多 6 個）<span id="interest-count" class="count"></span></legend>
+          <div id="chips-interests" class="chips"></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>會說的語言</legend>
+          <div id="chips-langs" class="chips"></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>想找什麼樣的朋友</legend>
+          <div id="chips-wants" class="chips"></div>
+        </fieldset>
+
+        <div class="field">
+          <label for="years">來日本多久了</label>
+          <select id="years" required>
+            <option value="">請選擇</option>
+          </select>
+        </div>
+
+        <label class="agree">
+          <input id="agree" type="checkbox" required>
+          <span>我同意<a href="#rules" id="open-rules">社群守則</a>：不推銷、不傳教、不騷擾，第一次見面在公開場所。</span>
+        </label>
+
+        <p id="profile-error" class="error" role="alert"></p>
+        <button type="submit" class="btn btn-primary">儲存並開始配對</button>
+      </form>
+    </section>
+
+    <!-- 3. 配對結果 -->
+    <section id="screen-match" class="screen" hidden>
+      <div class="topbar">
+        <button id="edit-profile" type="button" class="btn-link">編輯個人檔案</button>
+        <button id="logout-2" type="button" class="btn-link">登出</button>
+      </div>
+
+      <div id="waiting" hidden>
+        <div class="intro">
+          <p class="eyebrow">報名完成</p>
+          <h1>正在幫你找小組</h1>
+          <p class="muted">每個月會把住在附近、興趣相近的 4～5 人湊成一組。配對好之後，小組會出現在這裡。</p>
+        </div>
+        <div class="card summary" id="my-summary"></div>
+      </div>
+
+      <div id="group" hidden>
+        <div class="intro">
+          <p class="eyebrow">配對完成</p>
+          <h1>這是你這個月的小組</h1>
+        </div>
+        <div class="card">
+          <ul id="members" class="members"></ul>
+          <div class="common">
+            <div class="label">你們的共同點</div>
+            <div id="common-tags" class="tags"></div>
+          </div>
+        </div>
+        <div class="card meet">
+          <span class="meet-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          </span>
+          <div>
+            <div class="meet-title">建議第一次見面</div>
+            <div id="meet-text" class="muted small">週末白天・公開場所（咖啡廳、餐廳）</div>
+          </div>
+        </div>
+        <a id="chat-link" class="btn btn-primary" href="#" target="_blank" rel="noopener" hidden>加入小組聊天</a>
+      </div>
+
+      <div class="footer-links">
+        <a href="#rules" id="open-rules-2">安全守則</a>
+        <a href="mailto:REPLACE_WITH_CONTACT_EMAIL?subject=Tokyo%20Friends%20檢舉">檢舉</a>
+      </div>
+    </section>
+
+    <!-- 社群守則 -->
+    <dialog id="rules-dialog" class="dialog">
+      <h2>社群守則</h2>
+      <ul>
+        <li>只用暱稱，不要求別人提供真名、住址、工作地點。</li>
+        <li>禁止推銷、直銷、傳教、募款、招攬投資。</li>
+        <li>禁止騷擾或以交往為目的的私訊；這裡是交朋友的地方。</li>
+        <li>第一次見面請選公開場所，並告訴信任的人你去哪裡。</li>
+        <li>遇到不舒服的事請檢舉，違規者會被移除。</li>
+      </ul>
+      <form method="dialog"><button class="btn btn-primary">我知道了</button></form>
+    </dialog>
+
+    <div id="loading" class="loading">載入中…</div>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
