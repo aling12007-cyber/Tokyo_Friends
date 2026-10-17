@@ -1,12 +1,34 @@
 import { firebaseConfig } from './firebase-config.js';
 
 // ---------- 選項 ----------
-const AREAS = ['新宿・澀谷', '池袋・高田馬場', '上野・淺草', '品川・目黑', '吉祥寺・中央線沿線', '東京東部（錦糸町・葛西等）', '橫濱・川崎', '埼玉・千葉'];
-const INTERESTS = ['咖啡廳', '登山健行', '美食探店', '桌遊', '攝影', '溫泉旅行', '運動', '動漫', '日本傳統文化', '音樂・Live', '讀書', '料理'];
+const AREA_GROUPS = [
+  ['東京 23 區', ['新宿・新大久保', '澀谷・原宿・表參道', '池袋・高田馬場', '上野・淺草・秋葉原', '東京站・銀座・日本橋', '品川・目黑・五反田', '惠比壽・中目黑・自由之丘', '六本木・麻布・赤坂', '中野・高圓寺', '下北澤・三軒茶屋', '錦糸町・押上・龜戶', '北千住・赤羽', '豐洲・月島・台場', '蒲田・大森']],
+  ['東京 多摩', ['吉祥寺・三鷹', '立川・國立', '八王子・高尾', '町田', '調布・府中']],
+  ['埼玉', ['大宮', '浦和', '川口・蕨・西川口', '所澤', '川越', '越谷・草加', '和光・朝霞・志木', '春日部']],
+  ['神奈川', ['橫濱站周邊', '港未來・關內・中華街', '新橫濱・日吉', '川崎・武藏小杉', '溝之口・登戶', '相模原・橋本', '湘南・藤澤・茅崎', '鎌倉・逗子', '橫須賀・三浦', '厚木・海老名']]
+];
+const AREA_OTHER = '__other';
+const INTERESTS = [
+  '咖啡廳', '美食探店', '居酒屋', '甜點', '料理', '烘焙',
+  '登山健行', '露營', '溫泉旅行', '國內旅行', '海外旅行', '散步・街拍',
+  '攝影', '畫畫', '手作', '寫作',
+  '讀書', '電影', '日劇・韓劇', '動漫', '遊戲', '桌遊', '密室逃脫',
+  '音樂・Live', 'K-POP', '卡拉 OK', '樂器',
+  '運動', '健身', '跑步', '瑜伽', '游泳', '球類運動', '滑雪・滑板',
+  '日本傳統文化', '神社・寺院', '祭典・花火', '茶道・花道', '和服',
+  '美術館・展覽', '時尚', '寵物', '程式・科技', '投資理財', '語言學習'
+];
+const ACTIVITIES = [
+  '喝咖啡聊天', '一起吃飯', '喝一杯', '逛街', '逛美術館・展覽',
+  '爬山・健行', '去溫泉', '一日小旅行', '賞花・賞楓', '看祭典・花火',
+  '參拜神社・寺院', '唱 KTV', '玩桌遊', '看電影', '去 Live・演唱會',
+  '一起運動', '讀書會', '一起讀書・自習', '語言交換', '一起做料理'
+];
 const LANGS = ['中文', '日文', '英文', '韓文', '其他'];
 const WANTS = ['聊天朋友', '一起出去玩', '語言交換', '生活互助'];
 const YEARS = ['剛來（半年內）', '半年～2 年', '2～5 年', '5 年以上'];
-const MAX_INTERESTS = 6;
+const MAX_INTERESTS = 8;
+const AVATAR_SIZE = 256;
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -49,6 +71,15 @@ async function makeFirebaseBackend() {
       const res = await fs.getDocs(q);
       return res.empty ? null : res.docs[0].data();
     },
+    // 頭像存在 avatars/{uid}，縮成 256px 的小圖，不需要 Firebase Storage
+    async getAvatar(uid) {
+      const snap = await fs.getDoc(fs.doc(db, 'avatars', uid));
+      return snap.exists() ? snap.data().img : null;
+    },
+    async saveAvatar(uid, img) {
+      const ref = fs.doc(db, 'avatars', uid);
+      if (img) await fs.setDoc(ref, { img }); else await fs.deleteDoc(ref);
+    },
     async logout() { await authMod.signOut(auth); }
   };
 }
@@ -67,18 +98,20 @@ function makeDemoBackend() {
     },
     async getProfile() { return read().profile || null; },
     async saveProfile(uid, profile) { const s = read(); s.profile = profile; write(s); },
+    async getAvatar() { return read().avatar || null; },
+    async saveAvatar(uid, img) { const s = read(); if (img) s.avatar = img; else delete s.avatar; write(s); },
     async getGroup() {
       const p = read().profile;
       if (!p) return null;
       return {
         members: [
-          { nick: `${p.nick}（你）`, meta: `${p.years}・${p.langs.join('、')}` },
+          { uid: 'demo-user', nick: `${p.nick}（你）`, meta: `${p.years}・${p.langs.join('、')}` },
           { nick: 'Kenta', meta: '日本人・日文、英文・想練中文' },
           { nick: 'Ana', meta: '在日半年・英文、葡萄牙文' },
           { nick: 'Jiwoo', meta: '在日 1 年・韓文、日文' }
         ],
-        common: [...p.interests.slice(0, 2), p.area],
-        meet: `週末白天・${p.area.split('・')[0]}的咖啡廳（公開場所）`,
+        common: [...p.interests.slice(0, 2), ...(p.activities || []).slice(0, 1), p.area],
+        meet: `週末白天・${p.area.split('・').slice(-2).join('・')}附近的咖啡廳（公開場所）`,
         chatUrl: ''
       };
     },
@@ -120,21 +153,84 @@ function fillSelect(id, options, value) {
   if (value) sel.value = value;
 }
 
-const picked = { interests: new Set(), langs: new Set(), wants: new Set() };
+function fillAreaSelect(value) {
+  const sel = $('area');
+  sel.length = 1;
+  for (const g of [...sel.querySelectorAll('optgroup')]) g.remove();
+  const known = new Set();
+  for (const [label, items] of AREA_GROUPS) {
+    const og = document.createElement('optgroup');
+    og.label = label;
+    for (const a of items) {
+      const v = `${label === '東京 23 區' || label === '東京 多摩' ? '東京' : label}・${a}`;
+      og.appendChild(new Option(a, v));
+      known.add(v);
+    }
+    sel.appendChild(og);
+  }
+  sel.appendChild(new Option('其他（自己填寫）', AREA_OTHER));
+  const other = $('area-other');
+  if (value && !known.has(value)) { sel.value = AREA_OTHER; other.value = value; }
+  else { sel.value = value || ''; other.value = ''; }
+  other.hidden = sel.value !== AREA_OTHER;
+}
 
-function loadProfileForm(p) {
+const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set() };
+let avatarData = null;      // 目前表單上的頭像（data URL）
+let avatarChanged = false;
+
+function setAvatarPreview(img) {
+  $('avatar-img').hidden = !img;
+  $('avatar-placeholder').hidden = !!img;
+  $('avatar-remove').hidden = !img;
+  if (img) $('avatar-img').src = img; else $('avatar-img').removeAttribute('src');
+}
+
+function loadProfileForm(p, avatar) {
   $('nick').value = p?.nick || '';
-  fillSelect('area', AREAS, p?.area);
+  fillAreaSelect(p?.area);
   fillSelect('years', YEARS, p?.years);
   picked.interests = new Set(p?.interests || []);
+  picked.activities = new Set(p?.activities || []);
   picked.langs = new Set(p?.langs || []);
   picked.wants = new Set(p?.wants || []);
   renderChips('chips-interests', INTERESTS, picked.interests, MAX_INTERESTS);
+  renderChips('chips-activities', ACTIVITIES, picked.activities);
   renderChips('chips-langs', LANGS, picked.langs);
   renderChips('chips-wants', WANTS, picked.wants);
+  $('activity-other').value = p?.activityOther || '';
   $('interest-count').textContent = `已選 ${picked.interests.size} 個`;
+  avatarData = avatar || null;
+  avatarChanged = false;
+  setAvatarPreview(avatarData);
   $('agree').checked = !!p;
   $('profile-error').textContent = '';
+}
+
+// 把照片裁成正方形、縮成 256px 的 JPEG（約 20～40KB）
+function resizeImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      const sx = (img.naturalWidth - side) / 2;
+      const sy = (img.naturalHeight - side) / 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = AVATAR_SIZE;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FBF8F1';
+      ctx.fillRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, AVATAR_SIZE, AVATAR_SIZE);
+      URL.revokeObjectURL(url);
+      let q = 0.85;
+      let out = canvas.toDataURL('image/jpeg', q);
+      while (out.length > 120000 && q > 0.4) { q -= 0.15; out = canvas.toDataURL('image/jpeg', q); }
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad-image')); };
+    img.src = url;
+  });
 }
 
 // ---------- 配對頁 ----------
@@ -148,24 +244,48 @@ function el(tag, cls, text) {
   return e;
 }
 
-function renderSummary(p) {
+function isSafeImage(src) {
+  return typeof src === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src);
+}
+
+function makeAvatar(nick, i, img) {
+  const av = el('div', 'avatar');
+  av.setAttribute('aria-hidden', 'true');
+  if (isSafeImage(img)) {
+    const im = document.createElement('img');
+    im.src = img; im.alt = '';
+    av.appendChild(im);
+  } else {
+    av.textContent = (nick || '?').trim().charAt(0).toUpperCase();
+    const [bg, fg] = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    av.style.background = bg; av.style.color = fg;
+  }
+  return av;
+}
+
+function renderSummary(p, avatar) {
   const box = $('my-summary');
   box.innerHTML = '';
+  const head = el('div', 'summary-head');
+  const big = makeAvatar(p.nick, 0, avatar);
+  big.classList.add('avatar-lg');
+  head.append(big, el('div', 'member-name', p.nick));
+  box.appendChild(head);
   const dl = el('dl');
-  const rows = [['暱稱', p.nick], ['區域', p.area], ['興趣', p.interests.join('、')], ['語言', p.langs.join('、')], ['想找', p.wants.join('、')], ['在日', p.years]];
+  const todo = [...(p.activities || []), p.activityOther].filter(Boolean).join('、');
+  const rows = [['區域', p.area], ['興趣', p.interests.join('、')], ['想一起', todo || '—'], ['語言', p.langs.join('、')], ['想找', p.wants.join('、')], ['在日', p.years]];
   for (const [k, v] of rows) { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); }
   box.appendChild(dl);
 }
 
-function renderGroup(g) {
+async function renderGroup(g) {
   const ul = $('members');
   ul.innerHTML = '';
-  (g.members || []).forEach((m, i) => {
+  const members = g.members || [];
+  const avatars = await Promise.all(members.map((m) => (m.uid ? backend.getAvatar(m.uid).catch(() => null) : null)));
+  members.forEach((m, i) => {
     const li = el('li', 'member');
-    const av = el('div', 'avatar', (m.nick || '?').trim().charAt(0).toUpperCase());
-    const [bg, fg] = AVATAR_COLORS[i % AVATAR_COLORS.length];
-    av.style.background = bg; av.style.color = fg;
-    av.setAttribute('aria-hidden', 'true');
+    const av = makeAvatar(m.nick, i, avatars[i]);
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
     text.appendChild(el('div', 'member-meta', m.meta || ''));
@@ -182,12 +302,14 @@ function renderGroup(g) {
   if (safeUrl) link.href = safeUrl;
 }
 
+let currentAvatar = null;
+
 async function showMatch(uid, profile) {
   show('match');
   const group = await backend.getGroup(uid).catch(() => null);
   $('group').hidden = !group;
   $('waiting').hidden = !!group;
-  if (group) renderGroup(group); else renderSummary(profile);
+  if (group) await renderGroup(group); else renderSummary(profile, currentAvatar);
 }
 
 // ---------- 錯誤訊息 ----------
@@ -222,9 +344,39 @@ async function start() {
   backend.onUser(async (user) => {
     currentUser = user;
     if (!user) { $('phone-form').hidden = false; $('code-form').hidden = true; show('register'); return; }
-    currentProfile = await backend.getProfile(user.uid).catch(() => null);
+    [currentProfile, currentAvatar] = await Promise.all([
+      backend.getProfile(user.uid).catch(() => null),
+      backend.getAvatar(user.uid).catch(() => null)
+    ]);
     if (currentProfile) showMatch(user.uid, currentProfile);
-    else { loadProfileForm(null); show('profile'); }
+    else { loadProfileForm(null, currentAvatar); show('profile'); }
+  });
+
+  $('area').addEventListener('change', () => {
+    const isOther = $('area').value === AREA_OTHER;
+    $('area-other').hidden = !isOther;
+    if (isOther) $('area-other').focus();
+  });
+
+  $('avatar-file').addEventListener('change', async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { $('profile-error').textContent = '請選擇圖片檔。'; return; }
+    try {
+      avatarData = await resizeImage(file);
+      avatarChanged = true;
+      setAvatarPreview(avatarData);
+      $('profile-error').textContent = '';
+    } catch {
+      $('profile-error').textContent = '這張照片讀不出來，換一張試試。';
+    }
+  });
+
+  $('avatar-remove').addEventListener('click', () => {
+    avatarData = null;
+    avatarChanged = true;
+    setAvatarPreview(null);
   });
 
   $('phone-form').addEventListener('submit', async (ev) => {
@@ -261,17 +413,21 @@ async function start() {
   $('profile-form').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const err = $('profile-error');
+    const areaSel = $('area').value;
     const profile = {
       nick: $('nick').value.trim().slice(0, 20),
-      area: $('area').value,
+      area: areaSel === AREA_OTHER ? $('area-other').value.trim().slice(0, 30) : areaSel,
       interests: [...picked.interests],
+      activities: [...picked.activities],
+      activityOther: $('activity-other').value.trim().slice(0, 40),
       langs: [...picked.langs],
       wants: [...picked.wants],
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = '請填寫暱稱。');
-    if (!profile.area) return void (err.textContent = '請選擇區域。');
+    if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? '請填寫你的區域。' : '請選擇區域。');
     if (!profile.interests.length) return void (err.textContent = '請至少選一個興趣。');
+    if (!profile.activities.length && !profile.activityOther) return void (err.textContent = '請至少選一件想一起做的事。');
     if (!profile.langs.length) return void (err.textContent = '請至少選一個語言。');
     if (!profile.wants.length) return void (err.textContent = '請選擇想找的朋友類型。');
     if (!profile.years) return void (err.textContent = '請選擇來日本多久。');
@@ -279,6 +435,11 @@ async function start() {
     err.textContent = '';
     try {
       await backend.saveProfile(currentUser.uid, profile);
+      if (avatarChanged) {
+        await backend.saveAvatar(currentUser.uid, avatarData);
+        currentAvatar = avatarData;
+        avatarChanged = false;
+      }
       currentProfile = profile;
       showMatch(currentUser.uid, profile);
     } catch (e) {
@@ -286,7 +447,7 @@ async function start() {
     }
   });
 
-  $('edit-profile').addEventListener('click', () => { loadProfileForm(currentProfile); show('profile'); });
+  $('edit-profile').addEventListener('click', () => { loadProfileForm(currentProfile, currentAvatar); show('profile'); });
   for (const id of ['logout-1', 'logout-2']) $(id).addEventListener('click', () => backend.logout());
 
   const dialog = $('rules-dialog');

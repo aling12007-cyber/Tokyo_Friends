@@ -80,6 +80,22 @@
       </div>
 
       <form id="profile-form" novalidate>
+        <div class="field avatar-field">
+          <span class="field-title">頭像照片（選填）</span>
+          <div class="avatar-row">
+            <div id="avatar-preview" class="avatar-preview" aria-hidden="true">
+              <img id="avatar-img" alt="" hidden>
+              <span id="avatar-placeholder">友</span>
+            </div>
+            <div class="avatar-actions">
+              <label for="avatar-file" class="btn btn-outline btn-small">選擇照片</label>
+              <input id="avatar-file" class="visually-hidden" type="file" accept="image/*">
+              <button id="avatar-remove" type="button" class="btn-link" hidden>移除照片</button>
+            </div>
+          </div>
+          <p class="hint">不一定要放臉，風景、寵物、插圖都可以。照片只有同組的人看得到。</p>
+        </div>
+
         <div class="field">
           <label for="nick">暱稱</label>
           <input id="nick" type="text" maxlength="20" placeholder="例：Mochi" required>
@@ -90,11 +106,18 @@
           <select id="area" required>
             <option value="">請選擇</option>
           </select>
+          <input id="area-other" type="text" maxlength="30" placeholder="請填寫地區或車站，例：千葉・船橋" hidden>
         </div>
 
         <fieldset class="field">
-          <legend>興趣（可複選，最多 6 個）<span id="interest-count" class="count"></span></legend>
+          <legend>興趣（可複選，最多 8 個）<span id="interest-count" class="count"></span></legend>
           <div id="chips-interests" class="chips"></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>想一起做的事（可複選）</legend>
+          <div id="chips-activities" class="chips"></div>
+          <input id="activity-other" type="text" maxlength="40" placeholder="其他想做的事（選填），例：一起去看相撲" aria-label="其他想一起做的事">
         </fieldset>
 
         <fieldset class="field">
