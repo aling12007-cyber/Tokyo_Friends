@@ -22,6 +22,7 @@ export const T = {
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
     langs: '會說的語言', wants: '想找什麼樣的朋友',
+    friendStyle: '交友傾向', friendStyleHint: '聚會人數必選，其他選填。', errPrefSize: '請選擇想參加的聚會人數。', sumStyle: '傾向',
     freeTime: '空閒時間', lifestyle: '你的生活型態', lifestylePick: '請選擇', freeTimeWhen: '通常什麼時候有空（可複選）',
     errLifestyle: '請選擇生活型態。', errFreeTime: '請至少選一個有空的時段。', sumFree: '有空',
     years: '來日本多久了', yearsPick: '請選擇',
@@ -66,6 +67,7 @@ export const T = {
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
     langs: '話せる言語', wants: 'どんな友達を探してる？',
+    friendStyle: '友達づくりのスタイル', friendStyleHint: '人数は必須、ほかは任意です。', errPrefSize: '参加したいグループの人数を選んでください。', sumStyle: 'スタイル',
     freeTime: '空いている時間', lifestyle: 'ライフスタイル', lifestylePick: '選んでください', freeTimeWhen: 'だいたい空いている時間（複数選択可）',
     errLifestyle: 'ライフスタイルを選んでください。', errFreeTime: '空いている時間を 1 つ以上選んでください。', sumFree: '空き時間',
     years: '日本に来てどのくらい？', yearsPick: '選んでください',
@@ -110,6 +112,7 @@ export const T = {
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
     langs: 'Languages you speak', wants: 'What kind of friends?',
+    friendStyle: 'Your friendship style', friendStyleHint: 'Group size is required; the rest is optional.', errPrefSize: 'Please choose a group size.', sumStyle: 'Style',
     freeTime: 'Free time', lifestyle: 'Your lifestyle', lifestylePick: 'Choose one', freeTimeWhen: 'When are you usually free? (pick any)',
     errLifestyle: 'Please choose your lifestyle.', errFreeTime: 'Please pick at least one time you’re free.', sumFree: 'Free',
     years: 'How long have you been in Japan?', yearsPick: 'Choose one',
@@ -294,3 +297,36 @@ export const FREE_TIME_DEFAULTS = {
   jobhunting: ['weekday-day', 'weekday-night'],
   other: []
 };
+
+// 交友傾向：single = 這一類只能選一個
+export const PREF_GROUPS = [
+  { key: 'size', label: ['聚會人數', '参加したい人数', 'Group size'], items: [
+    ['size-small', '小團體（4 人以下）', '少人数（4 人以下）', 'Small groups (up to 4)'],
+    ['size-large', '多人聚會（5 人以上）', '大人数（5 人以上）', 'Bigger groups (5+)'],
+    ['size-pair', '一對一也 OK', '1 対 1 も OK', 'One-on-one is fine too']
+  ] },
+  { key: 'freq', single: true, label: ['見面頻率', '会う頻度', 'How often'], items: [
+    ['freq-weekly', '每週', '毎週', 'Weekly'],
+    ['freq-monthly', '每月 1～2 次', '月 1〜2 回', '1–2 times a month'],
+    ['freq-casual', '有空再約', '都合が合えば', 'Whenever we’re free']
+  ] },
+  { key: 'vibe', label: ['聚會氛圍', '雰囲気', 'Vibe'], items: [
+    ['vibe-quiet', '安靜聊天型', '落ち着いておしゃべり', 'Quiet chats'],
+    ['vibe-lively', '熱鬧玩樂型', 'ワイワイ楽しく', 'Lively & fun'],
+    ['vibe-themed', '有主題的活動', 'テーマのある活動', 'Themed activities'],
+    ['vibe-slow', '慢慢熟起來就好', 'ゆっくり仲良くなりたい', 'Take it slow'],
+    ['vibe-longterm', '想交長久的朋友', '長く付き合える友達がほしい', 'Long-term friends']
+  ] },
+  { key: 'who', label: ['想認識的人', '出会いたい人', 'Who you’d like to meet'], items: [
+    ['who-same', '同鄉（同國家）的人', '同じ国の人', 'People from my country'],
+    ['who-intl', '不同國家的人', 'いろんな国の人', 'People from other countries'],
+    ['who-jp', '日本人', '日本人', 'Japanese people'],
+    ['who-any', '都可以', 'こだわらない', 'Anyone']
+  ] },
+  { key: 'talk', label: ['聊天語言', '話したい言語', 'Language to chat in'], items: [
+    ['talk-native', '用母語輕鬆聊', '母語で気楽に', 'My own language'],
+    ['talk-ja', '想練日文', '日本語を練習したい', 'Practice Japanese'],
+    ['talk-en', '想練英文', '英語を練習したい', 'Practice English'],
+    ['talk-any', '什麼語言都行', '何語でも OK', 'Any language']
+  ] }
+];

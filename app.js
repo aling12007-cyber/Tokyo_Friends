@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -25,7 +25,7 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
@@ -152,7 +152,7 @@ function show(name) {
 }
 
 // ---------- 標籤選擇 ----------
-const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set() };
+const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set() };
 
 // 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
 const openCat = {};   // 每個區塊目前打開的分類 index
@@ -214,6 +214,32 @@ function renderChipGroups(containerId, groups, options, selected, max) {
     });
   }
   sync();
+}
+
+// 交友傾向：每一類一個小標題；「single」的類別只能選一個
+function renderPrefs() {
+  const box = $('prefs-box');
+  box.innerHTML = '';
+  for (const g of PREF_GROUPS) {
+    const head = el('span', 'sub-label', g.label[LI() - 1]);
+    const row = el('div', 'chips');
+    const buttons = [];
+    for (const opt of g.items) {
+      const id = opt[0];
+      const b = el('button', 'chip', opt[LI()]);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', picked.prefs.has(id) ? 'true' : 'false');
+      b.addEventListener('click', () => {
+        const on = picked.prefs.has(id);
+        if (g.single) for (const o of g.items) picked.prefs.delete(o[0]);
+        if (on) picked.prefs.delete(id); else picked.prefs.add(id);
+        for (const [bid, btn] of buttons) btn.setAttribute('aria-pressed', picked.prefs.has(bid) ? 'true' : 'false');
+      });
+      buttons.push([id, b]);
+      row.appendChild(b);
+    }
+    box.append(head, row);
+  }
 }
 
 function renderChips(containerId, options, selected, max) {
@@ -283,6 +309,7 @@ function renderAllChips() {
   renderChips('chips-langs', LANGS, picked.langs);
   renderChips('chips-wants', WANTS, picked.wants);
   renderChips('chips-free', FREE_TIMES, picked.freeTime);
+  renderPrefs();
   updateInterestCount();
 }
 
@@ -315,6 +342,7 @@ function loadProfileForm(p, avatar) {
   fillYears(p?.years);
   fillLifestyle(p?.lifestyle);
   picked.freeTime = new Set(p?.freeTime || []);
+  picked.prefs = new Set(p?.prefs || []);
   picked.interests = new Set(p?.interests || []);
   picked.activities = new Set(p?.activities || []);
   picked.langs = new Set(p?.langs || []);
@@ -395,6 +423,7 @@ function renderSummary(p, avatar) {
   const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
   const rows = [
     [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumStyle'), labels(p.prefs) || '—'],
     [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
     [t('sumLangs'), labels(p.langs)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
   ];
@@ -565,6 +594,7 @@ async function start() {
       activityOther: $('activity-other').value.trim().slice(0, 40),
       langs: [...picked.langs],
       wants: [...picked.wants],
+      prefs: [...picked.prefs],
       lifestyle: $('lifestyle').value,
       freeTime: [...picked.freeTime],
       years: $('years').value
@@ -575,6 +605,7 @@ async function start() {
     if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));
     if (!profile.langs.length) return void (err.textContent = t('errLang'));
     if (!profile.wants.length) return void (err.textContent = t('errWant'));
+    if (!profile.prefs.some((id) => id.startsWith('size-'))) return void (err.textContent = t('errPrefSize'));
     if (!profile.lifestyle) return void (err.textContent = t('errLifestyle'));
     if (!profile.freeTime.length) return void (err.textContent = t('errFreeTime'));
     if (!profile.years) return void (err.textContent = t('errYears'));
