@@ -191,6 +191,7 @@ function applyAvailabilityRestrictions() {
 function renderAvailabilityCalendar() {
   const box = $('availability-calendar'); if (!box) return;
   const lifestyle = $('lifestyle')?.value || '';
+  applyAvailabilityRestrictions();
   box.innerHTML = '';
   const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
   const end = new Date(start); end.setDate(end.getDate()+55);
