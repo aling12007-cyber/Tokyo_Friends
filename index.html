@@ -179,6 +179,16 @@
         </div>
 
         <div class="field">
+          <label for="line-id" data-i18n="lineIdLabel"></label>
+          <input id="line-id" type="text" maxlength="100" autocomplete="off" data-i18n-ph="lineIdPlaceholder" required>
+          <p class="hint" data-i18n="lineIdHint"></p>
+          <label class="agree line-share-consent">
+            <input id="line-share-consent" type="checkbox" required>
+            <span data-i18n="lineShareConsent"></span>
+          </label>
+        </div>
+
+        <div class="field">
           <label for="nationality" data-i18n="nationality"></label>
           <select id="nationality" required></select>
           <input id="nationality-other" type="text" maxlength="30" data-i18n-ph="nationalityOtherPh" data-i18n-aria="nationalityOtherPh" hidden>
