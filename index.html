@@ -189,6 +189,17 @@
         </div>
 
         <div class="field">
+          <label for="gender" data-i18n="myGender"></label>
+          <select id="gender" required>
+            <option value="" data-i18n="genderPick"></option>
+            <option value="female" data-i18n="genderFemale"></option>
+            <option value="male" data-i18n="genderMale"></option>
+            <option value="nonbinary" data-i18n="genderNonbinary"></option>
+            <option value="prefer-not-to-say" data-i18n="genderPreferNot"></option>
+          </select>
+        </div>
+
+        <div class="field">
           <label for="nationality" data-i18n="nationality"></label>
           <select id="nationality" required></select>
           <input id="nationality-other" type="text" maxlength="30" data-i18n-ph="nationalityOtherPh" data-i18n-aria="nationalityOtherPh" hidden>
