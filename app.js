@@ -491,6 +491,7 @@ function loadProfileForm(p, avatar) {
   langLevels = { ...(p?.langLevels || {}) };
   picked.wants = new Set(p?.wants || []);
   renderAllChips();
+  renderAvailabilityCalendar();
   $('activity-other').value = p?.activityOther || '';
   avatarData = avatar || null;
   avatarChanged = false;
@@ -594,7 +595,8 @@ async function renderGroup(g) {
   const tags = $('common-tags');
   tags.innerHTML = '';
   for (const tag of g.common || []) tags.appendChild(el('span', 'tag', label(tag)));
-  const auto = g.meetTimes || g.meetArea ? t('meetAuto', { when: labels(g.meetTimes) || '—', area: label(g.meetArea) || '—' }) : '';
+  const meetTimesText = (g.meetTimes || []).some((x) => String(x).includes('|')) ? g.meetTimes.map(slotLabel).join('、') : labels(g.meetTimes);
+  const auto = g.meetTimes || g.meetArea ? t('meetAuto', { when: meetTimesText || '—', area: label(g.meetArea) || '—' }) : '';
   $('meet-text').textContent = g.meet || auto || t('meetDefault');
   let progress = $('meetup-progress');
   if (!progress) { progress = el('p', 'muted small meetup-progress'); progress.id = 'meetup-progress'; const meetCard = document.querySelector('#group .meet'); if (meetCard) meetCard.insertBefore(progress, meetCard.firstChild); }
