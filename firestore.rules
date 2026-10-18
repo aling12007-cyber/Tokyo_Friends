@@ -18,7 +18,7 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == uid
         && request.auth.token.email_verified == true
-        && request.resource.data.keys().hasOnly(['nick', 'nationality', 'area', 'interests', 'activities', 'activityOther', 'langs', 'langLevels', 'wants', 'genderWant', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'years', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['nick', 'nationality', 'area', 'interests', 'activities', 'activityOther', 'langs', 'langLevels', 'wants', 'genderWant', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'availabilitySlots', 'years', 'updatedAt'])
         && request.resource.data.nick is string
         && request.resource.data.nick.size() > 0
         && request.resource.data.nick.size() <= 20
@@ -43,6 +43,8 @@ service cloud.firestore {
         && request.resource.data.lifestyle is string
         && request.resource.data.freeTime is list
         && request.resource.data.freeTime.size() <= 6
+        && request.resource.data.availabilitySlots is list
+        && request.resource.data.availabilitySlots.size() <= 168
         && request.resource.data.wants is list;
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
