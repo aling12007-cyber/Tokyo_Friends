@@ -37,6 +37,7 @@ export function sizeType(u) {
 }
 
 function slots(u) {
+  if (Array.isArray(u.availabilitySlots)) return new Set(u.availabilitySlots);
   const f = u.freeTime || [];
   if (f.includes('irregular')) return new Set(FREE_SLOTS); // 排班制：視為什麼時間都有可能
   return new Set(f.filter((x) => FREE_SLOTS.includes(x)));
@@ -199,7 +200,7 @@ export function commonArea(group) {
 export function groupWarnings(group) {
   const w = [];
   if (group.length < 3) w.push('人數少於 3 人');
-  if (group.length > 6) w.push('人數超過 6 人');
+  if (group.length > 4) w.push('人數超過 4 人');
   let langOk = true;
   for (let i = 0; i < group.length; i++) for (let j = i + 1; j < group.length; j++) if (overlap(langs(group[i]), langs(group[j])) === 0) langOk = false;
   if (!langOk) w.push('有人沒有共同語言');
