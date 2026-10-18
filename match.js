@@ -162,7 +162,7 @@ export function autoMatch(users) {
       pool = pool.filter((u) => u !== best);
     }
 
-    if (group.length >= 2) { group.type = type; groups.push(group); }
+    if (group.length >= 2) { group.type = type; group.maxSize = target; groups.push(group); }
     else leftover.push(...group);
   }
 
@@ -170,7 +170,7 @@ export function autoMatch(users) {
   for (const u of [...pool, ...leftover.splice(0)]) {
     let best = null, bestScore = -Infinity;
     for (const g of groups) {
-      const cap = 3;
+      const cap = g.maxSize || 3;
       if (g.length >= cap) continue;
       if (!canJoin(g, u, g.type)) continue;
       const sc = g.reduce((acc, m) => acc + pairScore(m, u), 0) / g.length;
