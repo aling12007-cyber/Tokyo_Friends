@@ -18,10 +18,14 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == uid
         && request.auth.token.email_verified == true
-        && request.resource.data.keys().hasOnly(['nick', 'nationality', 'area', 'interests', 'activities', 'activityOther', 'langs', 'langLevels', 'wants', 'genderWant', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'availabilitySlots', 'years', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['nick', 'lineId', 'lineShareConsent', 'nationality', 'area', 'interests', 'activities', 'activityOther', 'langs', 'langLevels', 'wants', 'genderWant', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'availabilitySlots', 'years', 'updatedAt'])
         && request.resource.data.nick is string
         && request.resource.data.nick.size() > 0
         && request.resource.data.nick.size() <= 20
+        && request.resource.data.lineId is string
+        && request.resource.data.lineId.size() > 0
+        && request.resource.data.lineId.size() <= 100
+        && request.resource.data.lineShareConsent == true
         && request.resource.data.nationality is string
         && request.resource.data.nationality.size() <= 30
         && request.resource.data.area is string
