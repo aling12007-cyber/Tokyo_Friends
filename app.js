@@ -77,10 +77,9 @@ async function makeFirebaseBackend() {
       await fs.setDoc(fs.doc(db, 'users', uid), { ...profile, updatedAt: fs.serverTimestamp() });
     },
     async getGroup(uid) {
-      // 可能有好幾個月的小組，顯示最新的那一組
       const q = fs.query(fs.collection(db, 'groups'), fs.where('memberUids', 'array-contains', uid));
       const res = await fs.getDocs(q);
-      const list = res.docs.map((d) => d.data()).sort((a, b) => String(b.month || '').localeCompare(String(a.month || '')));
+      const list = res.docs.map((d) => d.data()).sort((a, b) => String(b.week || b.month || '').localeCompare(String(a.week || a.month || '')));
       return list[0] || null;
     },
     // 頭像存在 avatars/{uid}，縮成 256px 的小圖，不需要 Firebase Storage
@@ -121,22 +120,7 @@ function makeDemoBackend() {
     async saveProfile(uid, profile) { const s = read(); s.profile = profile; write(s); },
     async getAvatar(uid) { return uid === 'demo-user' ? read().avatar || null : null; },
     async saveAvatar(uid, img) { const s = read(); if (img) s.avatar = img; else delete s.avatar; write(s); },
-    async getGroup() {
-      const p = read().profile;
-      if (!p) return null;
-      const metas = t('demoMembers');
-      return {
-        members: [
-          { uid: 'demo-user', nick: lang === 'en' ? `${p.nick} (${t('you')})` : `${p.nick}（${t('you')}）`, meta: `${label(p.years)}・${langsText(p.langs, p.langLevels)}` },
-          { nick: 'Kenta', meta: metas[0] },
-          { nick: 'Ana', meta: metas[1] },
-          { nick: 'Jiwoo', meta: metas[2] }
-        ],
-        common: [...p.interests.slice(0, 2), ...(p.activities || []).slice(0, 1), p.area],
-        meet: t('demoMeet', { area: label(p.area) }),
-        chatUrl: ''
-      };
-    },
+    async getGroup() { return null; },
     async logout() { const s = read(); delete s.uid; write(s); listener(null); }
   };
 }
@@ -578,6 +562,10 @@ async function renderGroup(g) {
   for (const tag of g.common || []) tags.appendChild(el('span', 'tag', label(tag)));
   const auto = g.meetTimes || g.meetArea ? t('meetAuto', { when: labels(g.meetTimes) || '—', area: label(g.meetArea) || '—' }) : '';
   $('meet-text').textContent = g.meet || auto || t('meetDefault');
+  let progress = $('meetup-progress');
+  if (!progress) { progress = el('p', 'muted small meetup-progress'); progress.id = 'meetup-progress'; const meetCard = document.querySelector('#group .meet'); if (meetCard) meetCard.insertBefore(progress, meetCard.firstChild); }
+  const completed = Math.max(0, Math.min(2, Number(g.meetupsCompleted) || 0));
+  progress.textContent = lang === 'ja' ? `交流会の実施状況：${completed}/2 回完了` : lang === 'en' ? `Meetup progress: ${completed}/2 completed` : `聚會進度：已完成 ${completed}/2 次（至少舉辦兩次）`;
   const link = $('chat-link');
   const safeUrl = typeof g.chatUrl === 'string' && /^https:\/\//.test(g.chatUrl) ? g.chatUrl : '';
   link.hidden = !safeUrl;
