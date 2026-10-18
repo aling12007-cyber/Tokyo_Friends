@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY, LANG_LEVELS, NATIONALITIES, NATIONALITY_NONE } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY, LANG_LEVELS, GENDER_WANTS, NATIONALITIES, NATIONALITY_NONE } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -177,6 +177,7 @@ function show(name) {
 
 // ---------- 標籤選擇 ----------
 const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set(), ageWant: new Set() };
+let genderWant = 'any';
 let langLevels = {};   // { ja: 'fluent', zh: 'native' }
 
 // 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
@@ -400,6 +401,23 @@ function fillAreaSelect(value) {
   other.hidden = sel.value !== AREA_OTHER;
 }
 
+function renderGenderWant() {
+  const box = $('chips-genderwant');
+  if (!box) return;
+  box.innerHTML = '';
+  for (const opt of GENDER_WANTS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = opt[LI()];
+    b.setAttribute('aria-pressed', genderWant === opt[0] ? 'true' : 'false');
+    b.addEventListener('click', () => {
+      genderWant = opt[0];
+      for (const btn of box.querySelectorAll('.chip')) btn.setAttribute('aria-pressed', 'false');
+      b.setAttribute('aria-pressed', 'true');
+    });
+    box.appendChild(b);
+  }
+}
+
 function renderAllChips() {
   renderChipGroups('chips-interests', INTEREST_GROUPS, INTERESTS, picked.interests, MAX_INTERESTS);
   renderChipGroups('chips-activities', ACTIVITY_GROUPS, ACTIVITIES, picked.activities);
@@ -409,6 +427,7 @@ function renderAllChips() {
   renderChips('chips-free', FREE_TIMES, picked.freeTime);
   renderPrefs();
   renderAgeWant();
+  renderGenderWant();
   updateInterestCount();
 }
 
@@ -445,6 +464,7 @@ function loadProfileForm(p, avatar) {
   fillAge(p?.age);
   fillNationality(p?.nationality);
   picked.ageWant = new Set(p?.ageWant || []);
+  genderWant = p?.genderWant || 'any';
   picked.freeTime = new Set(p?.freeTime || []);
   picked.prefs = new Set(p?.prefs || []);
   picked.interests = new Set(p?.interests || []);
@@ -529,6 +549,7 @@ function renderSummary(p, avatar) {
   const rows = [
     [t('sumNationality'), label(p.nationality) || '—'], [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
     [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
+    [t('sumGenderWant'), label(p.genderWant) || '—'],
     [t('sumStyle'), labels(p.prefs) || '—'],
     [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
     [t('sumLangs'), langsText(p.langs, p.langLevels)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
@@ -764,6 +785,7 @@ async function start() {
       langs: [...picked.langs],
       langLevels: Object.fromEntries([...picked.langs].filter((id) => langLevels[id]).map((id) => [id, langLevels[id]])),
       wants: [...picked.wants],
+      genderWant,
       age: $('age').value,
       ageWant: [...picked.ageWant],
       prefs: [...picked.prefs],
@@ -779,6 +801,7 @@ async function start() {
     if (!profile.langs.length) return void (err.textContent = t('errLang'));
     if (profile.langs.some((id) => !profile.langLevels[id])) return void (err.textContent = t('errLangLevel'));
     if (!profile.wants.length) return void (err.textContent = t('errWant'));
+    if (!profile.genderWant) return void (err.textContent = t('errGenderWant'));
     if (!profile.age) return void (err.textContent = t('errAge'));
     if (!profile.ageWant.length) return void (err.textContent = t('errAgeWant'));
     if (!profile.prefs.some((id) => id.startsWith('size-'))) return void (err.textContent = t('errPrefSize'));
