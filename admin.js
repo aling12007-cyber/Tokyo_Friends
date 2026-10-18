@@ -164,7 +164,7 @@ function buildDoc(s) {
 
 async function saveSuggestion(i) {
   const s = suggestions[i];
-  if (s.members.length < 2) { msg('一組至少要 2 個人。'); return; }
+  if (s.members.length < 3 || s.members.length > 4) { msg('每組必須是 3–4 人，請先調整人數。'); return; }
   try {
     await api.createGroup(buildDoc(s));
     suggestions.splice(i, 1);
@@ -179,7 +179,7 @@ async function saveAll() {
   const list = [...suggestions];
   let ok = 0;
   for (const s of list) {
-    if (s.members.length < 2) continue;
+    if (s.members.length < 3 || s.members.length > 4) continue;
     try { await api.createGroup(buildDoc(s)); suggestions = suggestions.filter((x) => x !== s); ok++; } catch { /* 留著讓管理者再試 */ }
   }
   await reloadSaved();
