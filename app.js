@@ -165,8 +165,32 @@ let genderWant = 'any';
 const availabilityPicked = new Set();
 const AVAILABILITY_BLOCKS = [['morning','10:00–12:00'],['afternoon','13:00–16:00'],['evening','18:00–21:00']];
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function availabilityAllowed(day, block, lifestyle) {
+  const weekday = day.getDay() >= 1 && day.getDay() <= 5;
+  const weekend = day.getDay() === 0 || day.getDay() === 6;
+  const daytime = block === 'morning' || block === 'afternoon';
+  switch (lifestyle) {
+    case 'office': return !weekday || !daytime;
+    case 'student': return !weekday || !daytime;
+    case 'shift': return true;
+    case 'freelance': return !weekend;
+    case 'home': return weekday && daytime;
+    case 'jobhunting': return !weekend;
+    case 'other': return true;
+    default: return true;
+  }
+}
+function applyAvailabilityRestrictions() {
+  const lifestyle = $('lifestyle')?.value || '';
+  for (const slot of [...availabilityPicked]) {
+    const [date, block] = slot.split('|');
+    const day = new Date(date + 'T12:00:00');
+    if (!availabilityAllowed(day, block, lifestyle)) availabilityPicked.delete(slot);
+  }
+}
 function renderAvailabilityCalendar() {
   const box = $('availability-calendar'); if (!box) return;
+  const lifestyle = $('lifestyle')?.value || '';
   box.innerHTML = '';
   const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
   const end = new Date(start); end.setDate(end.getDate()+55);
@@ -183,7 +207,10 @@ function renderAvailabilityCalendar() {
     for (const [id,time] of AVAILABILITY_BLOCKS) {
       const slot = `${key}|${id}`;
       const labelEl = el('label','calendar-slot');
-      const input = el('input'); input.type='checkbox'; input.checked=availabilityPicked.has(slot);
+      const input = el('input'); input.type='checkbox';
+      input.disabled = !availabilityAllowed(day, id, lifestyle);
+      input.checked = availabilityPicked.has(slot) && !input.disabled;
+      if (input.disabled) labelEl.classList.add('calendar-slot-disabled');
       input.addEventListener('change',()=>{ if(input.checked) availabilityPicked.add(slot); else availabilityPicked.delete(slot); updateAvailabilityCount(); });
       labelEl.append(input, el('span',null,time)); blocks.appendChild(labelEl);
     }
@@ -768,6 +795,8 @@ async function start() {
 
   // 選了生活型態、而且還沒選時段時，自動先勾常見的時段
   $('lifestyle').addEventListener('change', () => {
+    applyAvailabilityRestrictions();
+    renderAvailabilityCalendar();
     const v = $('lifestyle').value;
     if (v && picked.freeTime.size === 0) {
       for (const id of FREE_TIME_DEFAULTS[v] || []) picked.freeTime.add(id);
