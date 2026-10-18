@@ -7,7 +7,7 @@
 //    - 年齡層：雙方都在對方想認識的年齡層內（選「不在意年齡」就都可以）
 //    - 聚會人數喜好不衝突（只要小團體的人不會被放進多人組，反之亦然）
 // 2. 相似度分數：共同興趣、想做的事、同一區、共同時段、氛圍、頻率等越多分數越高
-// 3. 從最難配的人開始，一個一個加入分數最高的人，湊滿 4 人（小團體）或 5 人（多人）
+// 3. 從最難配的人開始，一個一個加入分數最高的人，目標 4 人、最低 3 人；每組最多 4 人
 
 import { AREA_GROUPS } from './i18n.js';
 
@@ -139,12 +139,12 @@ export function autoMatch(users) {
     // 先處理「最難配」的人：可以跟他同組的人最少
     let seed = null, seedCount = Infinity;
     for (const u of pool) {
-      const type = sizeType(u) === 'large' ? 'large' : 'small';
+      const type = 'small';
       const c = pool.filter((v) => v !== u && canJoin([u], v, type)).length;
       if (c < seedCount) { seed = u; seedCount = c; }
     }
-    const type = sizeType(seed) === 'large' ? 'large' : 'small';
-    const target = type === 'large' ? 5 : 4;
+    const type = 'small';
+    const target = 4;
     const group = [seed];
     pool = pool.filter((u) => u !== seed);
 
@@ -168,7 +168,7 @@ export function autoMatch(users) {
   for (const u of [...pool, ...leftover.splice(0)]) {
     let best = null, bestScore = -Infinity;
     for (const g of groups) {
-      const cap = g.type === 'large' ? 6 : 4;
+      const cap = 4;
       if (g.length >= cap) continue;
       if (!canJoin(g, u, g.type)) continue;
       const sc = g.reduce((acc, m) => acc + pairScore(m, u), 0) / g.length;
@@ -211,7 +211,6 @@ export function groupWarnings(group) {
   for (let i = 0; i < group.length; i++) for (let j = i + 1; j < group.length; j++) if (tooFar(group[i], group[j])) far = true;
   if (far) w.push('有人住得太遠');
   const types = new Set(group.map(sizeType));
-  if (group.length >= 5 && types.has('small')) w.push('有人只想參加小團體');
-  if (group.length <= 4 && types.has('large')) w.push('有人只想參加多人聚會');
+  // 本服務固定採 3–4 人小組，個人填寫的聚會規模偏好不會改變小組人數。
   return w;
 }
