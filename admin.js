@@ -68,7 +68,7 @@ function makeDemoAdmin() {
     const lifestyle = pick(['office', 'office', 'student', 'shift', 'freelance']);
     const native = pick(['zh', 'zh', 'ja', 'en', 'ko']);
     const r = rnd();
-    const size = r < 0.55 ? ['size-small'] : r < 0.8 ? ['size-large'] : ['size-small', 'size-large'];
+    const size = r < 0.5 ? ['size-pair'] : ['size-small'];
     return {
       uid: `demo-${i}`,
       nationality: { zh: pick(['tw', 'tw', 'cn', 'hk']), ja: 'jp', en: pick(['us', 'gb', 'au', 'ca']), ko: 'kr' }[native] || 'none',
