@@ -7,7 +7,7 @@
 //    - 年齡層：雙方都在對方想認識的年齡層內（選「不在意年齡」就都可以）
 //    - 聚會人數喜好不衝突（只要小團體的人不會被放進多人組，反之亦然）
 // 2. 相似度分數：共同興趣、想做的事、同一區、共同時段、氛圍、頻率等越多分數越高
-// 3. 從最難配的人開始，一個一個加入分數最高的人，目標 4 人、最低 3 人；每組最多 4 人
+// 3. 從最難配的人開始，一個一個加入分數最高的人，目標 2–3 人；每組最多 3 人
 
 import { AREA_GROUPS } from './i18n.js';
 
@@ -136,7 +136,7 @@ export function autoMatch(users) {
   const groups = [];
   const leftover = [];
 
-  while (pool.length >= 3) {
+  while (pool.length >= 2) {
     // 先處理「最難配」的人：可以跟他同組的人最少
     let seed = null, seedCount = Infinity;
     for (const u of pool) {
@@ -145,7 +145,8 @@ export function autoMatch(users) {
       if (c < seedCount) { seed = u; seedCount = c; }
     }
     const type = 'small';
-    const target = 4;
+    const seedPrefs = new Set(seed.prefs || []);
+    const target = seedPrefs.has('size-pair') ? 2 : 3;
     const group = [seed];
     pool = pool.filter((u) => u !== seed);
 
@@ -161,15 +162,15 @@ export function autoMatch(users) {
       pool = pool.filter((u) => u !== best);
     }
 
-    if (group.length >= 3) { group.type = type; groups.push(group); }
+    if (group.length >= 2) { group.type = type; groups.push(group); }
     else leftover.push(...group);
   }
 
-  // 剩下的人：試著塞進還有空位、條件合得來的組（小團體最多 4 人、多人聚會最多 6 人）
+  // 剩下的人：只加入還有空位、條件合得來的小組；每組最多 3 人
   for (const u of [...pool, ...leftover.splice(0)]) {
     let best = null, bestScore = -Infinity;
     for (const g of groups) {
-      const cap = 4;
+      const cap = 3;
       if (g.length >= cap) continue;
       if (!canJoin(g, u, g.type)) continue;
       const sc = g.reduce((acc, m) => acc + pairScore(m, u), 0) / g.length;
@@ -199,8 +200,8 @@ export function commonArea(group) {
 // 檢查一組有沒有問題（給手動調整後提醒用）
 export function groupWarnings(group) {
   const w = [];
-  if (group.length < 3) w.push('人數少於 3 人');
-  if (group.length > 4) w.push('人數超過 4 人');
+  if (group.length < 2) w.push('人數少於 2 人');
+  if (group.length > 3) w.push('人數超過 3 人');
   let langOk = true;
   for (let i = 0; i < group.length; i++) for (let j = i + 1; j < group.length; j++) if (overlap(langs(group[i]), langs(group[j])) === 0) langOk = false;
   if (!langOk) w.push('有人沒有共同語言');
@@ -212,6 +213,6 @@ export function groupWarnings(group) {
   for (let i = 0; i < group.length; i++) for (let j = i + 1; j < group.length; j++) if (tooFar(group[i], group[j])) far = true;
   if (far) w.push('有人住得太遠');
   const types = new Set(group.map(sizeType));
-  // 本服務固定採 3–4 人小組，個人填寫的聚會規模偏好不會改變小組人數。
+  // 本服務只採 1 對 1 或最多 3 人的小組。
   return w;
 }
