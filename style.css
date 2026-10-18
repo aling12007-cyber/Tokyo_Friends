@@ -742,3 +742,6 @@ html[lang="en"] { --round: 'Noto Sans TC', sans-serif; }
 .calendar-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; border: 1px solid #ded5cb; border-radius: 8px; background: #fbf8f3; color: #655b52; font-size: 10px; text-align: center; padding: 5px 2px; }
 .calendar-slot input { width: 16px; height: 16px; margin: 0; accent-color: #a96e68; }
 @media (max-width: 380px) { .calendar-day { grid-template-columns: 54px minmax(0,1fr); gap: 5px; } .calendar-slot { font-size: 9px; } }
+
+.calendar-slot-disabled { opacity: .38; background: #eee9e3; border-style: dashed; color: #958b82; cursor: not-allowed; }
+.calendar-slot-disabled input { cursor: not-allowed; }
