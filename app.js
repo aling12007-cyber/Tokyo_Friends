@@ -173,32 +173,31 @@ const JP_HOLIDAYS = new Map([
   ['2027-09-20','敬老の日'],['2027-09-23','秋分の日'],['2027-10-11','スポーツの日']
 ]);
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function availabilityAllowed(day, block, lifestyle) {
+function availabilityAllowed(day, block, freeTime) {
   const weekday = day.getDay() >= 1 && day.getDay() <= 5;
   const weekend = day.getDay() === 0 || day.getDay() === 6;
   const daytime = block === 'morning' || block === 'afternoon';
-  switch (lifestyle) {
-    case 'office': return !weekday || !daytime;
-    case 'student': return !weekday || !daytime;
-    case 'shift': return true;
-    case 'freelance': return !weekend;
-    case 'home': return weekday && daytime;
-    case 'jobhunting': return !weekend;
-    case 'other': return true;
-    default: return true;
-  }
+  const selected = freeTime instanceof Set ? freeTime : new Set(freeTime || []);
+  // Calendar availability is governed by the user's explicit "usually free" choices.
+  const allowed = [];
+  if (selected.has('weekday-day') && weekday && daytime) allowed.push(true);
+  else if (selected.has('weekday-night') && weekday && block === 'evening') allowed.push(true);
+  if (selected.has('sat') && day.getDay() === 6) allowed.push(true);
+  if (selected.has('sun') && day.getDay() === 0) allowed.push(true);
+  if (selected.has('holiday') && JP_HOLIDAYS.has(dateKey(day))) allowed.push(true);
+  if (selected.has('irregular')) allowed.push(true);
+  return allowed.length > 0;
 }
 function applyAvailabilityRestrictions() {
-  const lifestyle = $('lifestyle')?.value || '';
+  const freeTime = picked.freeTime;
   for (const slot of [...availabilityPicked]) {
     const [date, block] = slot.split('|');
     const day = new Date(date + 'T12:00:00');
-    if (!availabilityAllowed(day, block, lifestyle)) availabilityPicked.delete(slot);
+    if (!availabilityAllowed(day, block, freeTime)) availabilityPicked.delete(slot);
   }
 }
 function renderAvailabilityCalendar() {
   const box = $('availability-calendar'); if (!box) return;
-  const lifestyle = $('lifestyle')?.value || '';
   applyAvailabilityRestrictions();
   box.innerHTML = '';
   const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
@@ -222,7 +221,7 @@ function renderAvailabilityCalendar() {
       const slot = `${key}|${id}`;
       const labelEl = el('label','calendar-slot');
       const input = el('input'); input.type='checkbox';
-      input.disabled = !availabilityAllowed(day, id, lifestyle);
+      input.disabled = !availabilityAllowed(day, id, picked.freeTime);
       input.checked = availabilityPicked.has(slot) && !input.disabled;
       if (input.disabled) labelEl.classList.add('calendar-slot-disabled');
       input.addEventListener('change',()=>{ if(input.checked) availabilityPicked.add(slot); else availabilityPicked.delete(slot); updateAvailabilityCount(); });
@@ -481,6 +480,7 @@ function renderAllChips() {
   renderLangLevels();
   renderChips('chips-wants', WANTS, picked.wants);
   renderChips('chips-free', FREE_TIMES, picked.freeTime);
+  renderAvailabilityCalendar();
   renderPrefs();
   renderAgeWant();
   renderGenderWant();
@@ -816,7 +816,9 @@ async function start() {
       for (const id of FREE_TIME_DEFAULTS[v] || []) picked.freeTime.add(id);
       renderChips('chips-free', FREE_TIMES, picked.freeTime);
     }
+    renderAvailabilityCalendar();
   });
+  $('chips-free').addEventListener('click', () => { setTimeout(renderAvailabilityCalendar, 0); });
 
   $('avatar-file').addEventListener('change', async (ev) => {
     const file = ev.target.files && ev.target.files[0];
