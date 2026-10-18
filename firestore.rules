@@ -17,7 +17,7 @@ service cloud.firestore {
       allow read: if (request.auth != null && request.auth.uid == uid) || isAdmin();
       allow create, update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['nick', 'area', 'interests', 'activities', 'activityOther', 'langs', 'wants', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'years', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['nick', 'area', 'interests', 'activities', 'activityOther', 'langs', 'langLevels', 'wants', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'years', 'updatedAt'])
         && request.resource.data.nick is string
         && request.resource.data.nick.size() > 0
         && request.resource.data.nick.size() <= 20
@@ -30,6 +30,8 @@ service cloud.firestore {
         && request.resource.data.activityOther is string
         && request.resource.data.activityOther.size() <= 40
         && request.resource.data.langs is list
+        && request.resource.data.langLevels is map
+        && request.resource.data.langLevels.size() <= 6
         && request.resource.data.age is string
         && request.resource.data.ageWant is list
         && request.resource.data.ageWant.size() <= 7

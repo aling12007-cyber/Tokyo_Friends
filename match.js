@@ -2,7 +2,7 @@
 //
 // 1. 必要條件（不符合就不會放在同一組）
 //    - 住的地方不能太遠：東京 23 區可以和任何地區同組；只有埼玉×神奈川、埼玉×多摩這種太遠的組合不會放一起
-//    - 至少有一個共同語言
+//    - 至少有一個共同語言（「初學」程度不算）
 //    - 至少有一個共同的空閒時段（「不固定（看排班）」視為都可以）
 //    - 年齡層：雙方都在對方想認識的年齡層內（選「不在意年齡」就都可以）
 //    - 聚會人數喜好不衝突（只要小團體的人不會被放進多人組，反之亦然）
@@ -48,7 +48,13 @@ function ageOk(a, b) {
   return accepts(a, b) && accepts(b, a);
 }
 
-function langs(u) { return new Set((u.langs || []).filter((l) => l !== 'other')); }
+// 能用來聊天的語言：「初學」不算（還沒辦法聊）；沒填程度的舊資料當作可以
+function langs(u) {
+  const lv = u.langLevels || {};
+  return new Set((u.langs || []).filter((l) => l !== 'other' && lv[l] !== 'beginner'));
+}
+const GOOD = new Set(['native', 'fluent']);
+const lvOf = (u, l) => (u.langLevels || {})[l];
 
 const overlap = (a, b) => { let n = 0; for (const x of a) if (b.has(x)) n++; return n; };
 const S = (arr) => new Set(arr || []);
@@ -69,10 +75,13 @@ export function pairScore(a, b) {
   // 想認識日本人 × 對方是日本人；想練日文／英文 × 對方會說
   if (pa.has('who-jp') && b.years === 'local') s += 2;
   if (pb.has('who-jp') && a.years === 'local') s += 2;
-  if (pa.has('talk-ja') && langs(b).has('ja')) s += 1;
-  if (pb.has('talk-ja') && langs(a).has('ja')) s += 1;
-  if (pa.has('talk-en') && langs(b).has('en')) s += 1;
-  if (pb.has('talk-en') && langs(a).has('en')) s += 1;
+  // 想練日文／英文 × 對方說得很好（母語或流利）加更多分
+  for (const [want, l] of [['talk-ja', 'ja'], ['talk-en', 'en']]) {
+    if (pa.has(want) && langs(b).has(l)) s += GOOD.has(lvOf(b, l)) ? 2 : 1;
+    if (pb.has(want) && langs(a).has(l)) s += GOOD.has(lvOf(a, l)) ? 2 : 1;
+  }
+  // 共同語言兩個人都說得很好，聊天比較順
+  for (const l of langs(a)) if (langs(b).has(l) && GOOD.has(lvOf(a, l)) && GOOD.has(lvOf(b, l))) { s += 1; break; }
   return s;
 }
 

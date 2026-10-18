@@ -1,6 +1,6 @@
 import { firebaseConfig } from './firebase-config.js';
 import {
-  INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, LIFESTYLES, FREE_TIMES, PREF_GROUPS, AGES, AGE_ANY, AREA_GROUPS, FREE_TIME_DEFAULTS
+  INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, LIFESTYLES, FREE_TIMES, PREF_GROUPS, AGES, AGE_ANY, AREA_GROUPS, FREE_TIME_DEFAULTS, LANG_LEVELS
 } from './i18n.js';
 import { autoMatch, groupScore, commonTags, commonArea, groupSlots, groupWarnings, sizeType } from './match.js';
 
@@ -8,11 +8,12 @@ const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
 
 // 後台只用中文顯示
-const ALL = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AGES, AGE_ANY,
+const ALL = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AGES, AGE_ANY, ...LANG_LEVELS,
   ...PREF_GROUPS.flatMap((g) => g.items), ...AREA_GROUPS.flatMap((g) => g.items)];
 const NAME = new Map(ALL.map((o) => [o[0], o[1]]));
 const zh = (id) => NAME.get(id) || id || '';
 const zhs = (ids) => (ids || []).map(zh).join('、');
+const zhLangs = (u) => (u.langs || []).map((l) => (u.langLevels && u.langLevels[l] ? `${zh(l)}(${zh(u.langLevels[l])})` : zh(l))).join('、');
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -73,7 +74,12 @@ function makeDemoAdmin() {
       area: pick(areas),
       interests: some(INTERESTS.map((x) => x[0]), 3, 7),
       activities: some(ACTIVITIES.map((x) => x[0]), 2, 4),
-      langs: [...new Set([native, pick(['ja', 'ja', 'en', 'zh'])])],
+      ...(() => {
+        const ls = [...new Set([native, pick(['ja', 'ja', 'en', 'zh'])])];
+        const lv = {};
+        for (const l of ls) lv[l] = l === native ? 'native' : pick(['fluent', 'conv', 'conv', 'basic', 'beginner']);
+        return { langs: ls, langLevels: lv };
+      })(),
       wants: some(WANTS.map((x) => x[0]), 1, 2),
       prefs: [...size, pick(['freq-weekly', 'freq-monthly', 'freq-casual']), ...some(['vibe-quiet', 'vibe-lively', 'vibe-themed', 'vibe-slow'], 1, 2)],
       lifestyle,
@@ -140,7 +146,7 @@ function buildDoc(s) {
   const doc = {
     month: $('month').value,
     memberUids: members.map((u) => u.uid),
-    members: members.map((u) => ({ uid: u.uid, nick: u.nick, years: u.years || '', langs: u.langs || [] })),
+    members: members.map((u) => ({ uid: u.uid, nick: u.nick, years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
     common: commonTags(members),
     meetTimes: times.length ? times : ['irregular'],
     meetArea: commonArea(members),
@@ -196,7 +202,7 @@ function personRow(u, fromIdx) {
   const top = el('div', 'person-top');
   top.append(el('span', 'person-name', u.nick || '（無暱稱）'), el('span', 'person-area', zh(u.area)));
   const meta = el('div', 'person-meta', [
-    zh(u.age), zh(u.lifestyle), zhs(u.freeTime), zhs(u.langs),
+    zh(u.age), zh(u.lifestyle), zhs(u.freeTime), zhLangs(u),
     sizeType(u) === 'small' ? '小團體' : sizeType(u) === 'large' ? '多人' : '人數不拘'
   ].filter(Boolean).join('｜'));
   const likes = el('div', 'person-likes', zhs([...(u.interests || []).slice(0, 5), ...(u.activities || []).slice(0, 2)]));

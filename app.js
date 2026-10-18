@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY, LANG_LEVELS } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -25,10 +25,16 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...LANG_LEVELS, ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
+// 「日文（流利）、中文（母語）」
+function langsText(ids, levels) {
+  const lv = levels || {};
+  const wrap = (x) => (lang === 'en' ? ` (${x})` : `（${x}）`);
+  return (ids || []).map((id) => (lv[id] ? label(id) + wrap(label(lv[id])) : label(id))).join(lang === 'en' ? ', ' : '、');
+}
 function labels(ids) { return (ids || []).map(label).join(lang === 'en' ? ', ' : '、'); }
 
 // ---------- 後端：Firebase 或示範模式 ----------
@@ -107,7 +113,7 @@ function makeDemoBackend() {
       const metas = t('demoMembers');
       return {
         members: [
-          { uid: 'demo-user', nick: lang === 'en' ? `${p.nick} (${t('you')})` : `${p.nick}（${t('you')}）`, meta: `${label(p.years)}・${labels(p.langs)}` },
+          { uid: 'demo-user', nick: lang === 'en' ? `${p.nick} (${t('you')})` : `${p.nick}（${t('you')}）`, meta: `${label(p.years)}・${langsText(p.langs, p.langLevels)}` },
           { nick: 'Kenta', meta: metas[0] },
           { nick: 'Ana', meta: metas[1] },
           { nick: 'Jiwoo', meta: metas[2] }
@@ -155,6 +161,7 @@ function show(name) {
 
 // ---------- 標籤選擇 ----------
 const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set(), ageWant: new Set() };
+let langLevels = {};   // { ja: 'fluent', zh: 'native' }
 
 // 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
 const openCat = {};   // 每個區塊目前打開的分類 index
@@ -244,10 +251,10 @@ function renderPrefs() {
   }
 }
 
-function renderChips(containerId, options, selected, max) {
+function renderChips(containerId, options, selected, max, onChange) {
   const box = $(containerId);
   box.innerHTML = '';
-  addChips(box, options, selected, max, containerId);
+  addChips(box, options, selected, max, containerId, onChange);
 }
 
 function addChips(box, options, selected, max, containerId, onChange) {
@@ -305,6 +312,29 @@ function renderAgeWant() {
   }
 }
 
+// 每個選了的語言，下面出現一個程度選單
+function renderLangLevels() {
+  const box = $('lang-levels');
+  box.innerHTML = '';
+  for (const opt of LANGS) {
+    const id = opt[0];
+    if (!picked.langs.has(id)) continue;
+    const row = document.createElement('div');
+    row.className = 'lang-level';
+    const lab = document.createElement('label');
+    lab.htmlFor = `lv-${id}`;
+    lab.textContent = opt[LI()];
+    const sel = document.createElement('select');
+    sel.id = `lv-${id}`;
+    sel.add(new Option(t('langLevelPick'), ''));
+    for (const lv of LANG_LEVELS) sel.add(new Option(lv[LI()], lv[0]));
+    sel.value = langLevels[id] || '';
+    sel.addEventListener('change', () => { if (sel.value) langLevels[id] = sel.value; else delete langLevels[id]; });
+    row.append(lab, sel);
+    box.appendChild(row);
+  }
+}
+
 function fillLifestyle(value) {
   const sel = $('lifestyle');
   sel.innerHTML = '';
@@ -342,7 +372,8 @@ function fillAreaSelect(value) {
 function renderAllChips() {
   renderChipGroups('chips-interests', INTEREST_GROUPS, INTERESTS, picked.interests, MAX_INTERESTS);
   renderChipGroups('chips-activities', ACTIVITY_GROUPS, ACTIVITIES, picked.activities);
-  renderChips('chips-langs', LANGS, picked.langs);
+  renderChips('chips-langs', LANGS, picked.langs, 0, renderLangLevels);
+  renderLangLevels();
   renderChips('chips-wants', WANTS, picked.wants);
   renderChips('chips-free', FREE_TIMES, picked.freeTime);
   renderPrefs();
@@ -386,6 +417,7 @@ function loadProfileForm(p, avatar) {
   picked.interests = new Set(p?.interests || []);
   picked.activities = new Set(p?.activities || []);
   picked.langs = new Set(p?.langs || []);
+  langLevels = { ...(p?.langLevels || {}) };
   picked.wants = new Set(p?.wants || []);
   renderAllChips();
   $('activity-other').value = p?.activityOther || '';
@@ -466,7 +498,7 @@ function renderSummary(p, avatar) {
     [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
     [t('sumStyle'), labels(p.prefs) || '—'],
     [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
-    [t('sumLangs'), labels(p.langs)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
+    [t('sumLangs'), langsText(p.langs, p.langLevels)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
   ];
   for (const [k, v] of rows) { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); }
   box.appendChild(dl);
@@ -481,7 +513,7 @@ async function renderGroup(g) {
     const li = el('li', 'member');
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
-    const meta = m.meta || [label(m.years), labels(m.langs)].filter(Boolean).join('・');
+    const meta = m.meta || [label(m.years), langsText(m.langs, m.langLevels)].filter(Boolean).join('・');
     text.appendChild(el('div', 'member-meta', meta));
     li.append(makeAvatar(m.nick, i, avatars[i]), text);
     ul.appendChild(li);
@@ -636,6 +668,7 @@ async function start() {
       activities: [...picked.activities],
       activityOther: $('activity-other').value.trim().slice(0, 40),
       langs: [...picked.langs],
+      langLevels: Object.fromEntries([...picked.langs].filter((id) => langLevels[id]).map((id) => [id, langLevels[id]])),
       wants: [...picked.wants],
       age: $('age').value,
       ageWant: [...picked.ageWant],
@@ -649,6 +682,7 @@ async function start() {
     if (!profile.interests.length) return void (err.textContent = t('errInterest'));
     if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));
     if (!profile.langs.length) return void (err.textContent = t('errLang'));
+    if (profile.langs.some((id) => !profile.langLevels[id])) return void (err.textContent = t('errLangLevel'));
     if (!profile.wants.length) return void (err.textContent = t('errWant'));
     if (!profile.age) return void (err.textContent = t('errAge'));
     if (!profile.ageWant.length) return void (err.textContent = t('errAgeWant'));

@@ -21,6 +21,7 @@ export const T = {
     area: '常出沒的區域', areaPick: '請選擇', areaOther: '其他（自己填寫）', areaOtherPh: '請填寫地區或車站，例：千葉・船橋',
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
+    langLevelPick: '選擇程度', errLangLevel: '請幫每個語言選擇程度。',
     langs: '會說的語言', wants: '想找什麼樣的朋友',
     ageTitle: '年齡層', myAge: '你的年齡層', agePick: '請選擇', ageWant: '想認識的年齡層（可複選）', ageHint: '本服務限 18 歲以上使用。', errAge: '請選擇你的年齡層。', errAgeWant: '請選擇想認識的年齡層，或選「不在意年齡」。', sumAge: '年齡',
     friendStyle: '交友傾向', friendStyleHint: '聚會人數必選，其他選填。', errPrefSize: '請選擇想參加的聚會人數。', sumStyle: '傾向',
@@ -68,6 +69,7 @@ export const T = {
     area: 'よく行くエリア', areaPick: '選んでください', areaOther: 'その他（自由入力）', areaOtherPh: 'エリアや駅名を入力（例：千葉・船橋）',
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
+    langLevelPick: 'レベルを選ぶ', errLangLevel: 'それぞれの言語のレベルを選んでください。',
     langs: '話せる言語', wants: 'どんな友達を探してる？',
     ageTitle: '年齢層', myAge: 'あなたの年齢層', agePick: '選んでください', ageWant: '出会いたい年齢層（複数選択可）', ageHint: '18 歳以上の方のみご利用いただけます。', errAge: '年齢層を選んでください。', errAgeWant: '出会いたい年齢層を選ぶか、「年齢は気にしない」を選んでください。', sumAge: '年齢',
     friendStyle: '友達づくりのスタイル', friendStyleHint: '人数は必須、ほかは任意です。', errPrefSize: '参加したいグループの人数を選んでください。', sumStyle: 'スタイル',
@@ -115,6 +117,7 @@ export const T = {
     area: 'Where you usually hang out', areaPick: 'Choose one', areaOther: 'Other (type it in)', areaOtherPh: 'Area or station, e.g. Funabashi, Chiba',
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
+    langLevelPick: 'Choose level', errLangLevel: 'Please choose a level for each language.',
     langs: 'Languages you speak', wants: 'What kind of friends?',
     ageTitle: 'Age', myAge: 'Your age group', agePick: 'Choose one', ageWant: 'Ages you’d like to meet (pick any)', ageHint: 'You must be 18 or older to use this service.', errAge: 'Please choose your age group.', errAgeWant: 'Please choose the ages you’d like to meet, or “Any age”.', sumAge: 'Age',
     friendStyle: 'Your friendship style', friendStyleHint: 'Group size is required; the rest is optional.', errPrefSize: 'Please choose a group size.', sumStyle: 'Style',
@@ -346,3 +349,12 @@ export const AGES = [
   ['50+', '50 歲以上', '50 歳以上', '50+']
 ];
 export const AGE_ANY = ['age-any', '不在意年齡', '年齢は気にしない', 'Any age'];
+
+// 語言程度（由高到低）
+export const LANG_LEVELS = [
+  ['native', '母語', 'ネイティブ', 'Native'],
+  ['fluent', '流利', '流暢', 'Fluent'],
+  ['conv', '日常會話', '日常会話', 'Conversational'],
+  ['basic', '簡單溝通', '簡単な会話', 'Basic'],
+  ['beginner', '初學', '勉強中', 'Beginner']
+];
