@@ -162,6 +162,37 @@ function show(name) {
 // ---------- 標籤選擇 ----------
 const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set(), ageWant: new Set() };
 let genderWant = 'any';
+const availabilityPicked = new Set();
+const AVAILABILITY_BLOCKS = [['morning','10:00–12:00'],['afternoon','13:00–16:00'],['evening','18:00–21:00']];
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function renderAvailabilityCalendar() {
+  const box = $('availability-calendar'); if (!box) return;
+  box.innerHTML = '';
+  const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
+  const end = new Date(start); end.setDate(end.getDate()+55);
+  let week = null, row = null;
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
+    const monday = new Date(d); monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
+    const weekKey = dateKey(monday);
+    if (weekKey !== week) { week = weekKey; row = el('section','calendar-week'); row.appendChild(el('h3','calendar-week-title',`${d.getFullYear()}/${d.getMonth()+1}・第 ${Math.ceil(d.getDate()/7)} 週`)); box.appendChild(row); }
+    const day = new Date(d); const key = dateKey(day);
+    const dayCard = el('div','calendar-day');
+    const labelText = `${['日','一','二','三','四','五','六'][day.getDay()]}・${day.getMonth()+1}/${day.getDate()}`;
+    dayCard.appendChild(el('div','calendar-date',labelText));
+    const blocks = el('div','calendar-blocks');
+    for (const [id,time] of AVAILABILITY_BLOCKS) {
+      const slot = `${key}|${id}`;
+      const labelEl = el('label','calendar-slot');
+      const input = el('input'); input.type='checkbox'; input.checked=availabilityPicked.has(slot);
+      input.addEventListener('change',()=>{ if(input.checked) availabilityPicked.add(slot); else availabilityPicked.delete(slot); updateAvailabilityCount(); });
+      labelEl.append(input, el('span',null,time)); blocks.appendChild(labelEl);
+    }
+    dayCard.appendChild(blocks); row.appendChild(dayCard);
+  }
+  updateAvailabilityCount();
+}
+function updateAvailabilityCount() { const n=$('availability-count'); if(n) n.textContent=`已選 ${availabilityPicked.size} 個時段`; }
+function slotLabel(slot) { const [date,block]=String(slot).split('|'); const d=new Date(`${date}T12:00:00`); const times=Object.fromEntries(AVAILABILITY_BLOCKS); return `${d.getMonth()+1}/${d.getDate()} ${times[block]||block}`; }
 let langLevels = {};   // { ja: 'fluent', zh: 'native' }
 
 // 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
@@ -428,6 +459,7 @@ function refreshProfileOptions() {
   if ($('area').value === AREA_OTHER) $('area-other').value = otherText;
   fillYears(yearsVal);
   renderAllChips();
+  renderAvailabilityCalendar();
 }
 
 let avatarData = null;
@@ -450,6 +482,8 @@ function loadProfileForm(p, avatar) {
   picked.ageWant = new Set(p?.ageWant || []);
   genderWant = p?.genderWant || 'any';
   picked.freeTime = new Set(p?.freeTime || []);
+  availabilityPicked.clear();
+  for (const slot of (p?.availabilitySlots || [])) availabilityPicked.add(slot);
   picked.prefs = new Set(p?.prefs || []);
   picked.interests = new Set(p?.interests || []);
   picked.activities = new Set(p?.activities || []);
@@ -535,7 +569,7 @@ function renderSummary(p, avatar) {
     [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
     [t('sumGenderWant'), label(p.genderWant) || '—'],
     [t('sumStyle'), labels(p.prefs) || '—'],
-    [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
+    [t('sumFree'), [label(p.lifestyle), labels(p.freeTime), (p.availabilitySlots || []).map(slotLabel).join('、')].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
     [t('sumLangs'), langsText(p.langs, p.langLevels)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
   ];
   for (const [k, v] of rows) { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); }
@@ -656,6 +690,7 @@ async function start() {
 
   for (const b of document.querySelectorAll('.auth-tab')) b.addEventListener('click', () => setAuthMode(b.dataset.mode));
   setAuthMode('signup');
+  renderAvailabilityCalendar();
 
   $('auth-form').addEventListener('submit', async (ev) => {
     ev.preventDefault();
@@ -779,6 +814,7 @@ async function start() {
       prefs: [...picked.prefs],
       lifestyle: $('lifestyle').value,
       freeTime: [...picked.freeTime],
+      availabilitySlots: [...availabilityPicked].sort(),
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = t('errNick'));
@@ -795,6 +831,7 @@ async function start() {
     if (!profile.prefs.some((id) => id.startsWith('size-'))) return void (err.textContent = t('errPrefSize'));
     if (!profile.lifestyle) return void (err.textContent = t('errLifestyle'));
     if (!profile.freeTime.length) return void (err.textContent = t('errFreeTime'));
+    if (!profile.availabilitySlots.length) return void (err.textContent = t('errCalendar'));
     if (!profile.years) return void (err.textContent = t('errYears'));
     if (!$('agree').checked) return void (err.textContent = t('errAgree'));
     err.textContent = '';
