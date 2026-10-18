@@ -515,6 +515,7 @@ function setAvatarPreview(img) {
 
 function loadProfileForm(p, avatar) {
   $('nick').value = p?.nick || '';
+  $('gender').value = p?.gender || '';
   fillAreaSelect(p?.area);
   fillYears(p?.years);
   fillLifestyle(p?.lifestyle);
@@ -609,7 +610,7 @@ function renderSummary(p, avatar) {
   const dl = el('dl');
   const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
   const rows = [
-    [t('sumNationality'), label(p.nationality) || '—'], [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumGender'), label(p.gender) || '—'], [t('sumNationality'), label(p.nationality) || '—'], [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
     [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
     [t('sumGenderWant'), label(p.genderWant) || '—'],
     [t('sumStyle'), labels(p.prefs) || '—'],
@@ -850,6 +851,7 @@ async function start() {
     const areaSel = $('area').value;
     const profile = {
       nick: $('nick').value.trim().slice(0, 20),
+      gender: $('gender').value,
       lineId: $('line-id').value.trim().slice(0, 100),
       lineShareConsent: $('line-share-consent').checked,
       nationality: $('nationality').value === NAT_OTHER ? $('nationality-other').value.trim().slice(0, 30) : $('nationality').value,
@@ -870,6 +872,7 @@ async function start() {
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = t('errNick'));
+    if (!profile.gender) return void (err.textContent = t('errGender'));
     if (!profile.lineId) return void (err.textContent = t('errLineId'));
     if (!profile.lineShareConsent) return void (err.textContent = t('errLineConsent'));
     if (!profile.nationality) return void (err.textContent = t('errNationality'));
