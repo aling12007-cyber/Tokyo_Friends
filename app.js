@@ -537,6 +537,8 @@ function loadProfileForm(p, avatar) {
   avatarData = avatar || null;
   avatarChanged = false;
   setAvatarPreview(avatarData);
+  $('line-id').value = p?.lineId || '';
+  $('line-share-consent').checked = !!p?.lineShareConsent;
   $('agree').checked = !!p;
   $('profile-error').textContent = '';
 }
@@ -627,6 +629,7 @@ async function renderGroup(g) {
     const li = el('li', 'member');
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
+    if (m.lineId) { const line = el('div', 'member-line-id', `LINE ID：${m.lineId}`); text.appendChild(line); }
     const nat = m.nationality && m.nationality !== 'none' ? label(m.nationality) : '';
     const meta = m.meta || [nat, label(m.years), langsText(m.langs, m.langLevels)].filter(Boolean).join('・');
     text.appendChild(el('div', 'member-meta', meta));
@@ -847,6 +850,8 @@ async function start() {
     const areaSel = $('area').value;
     const profile = {
       nick: $('nick').value.trim().slice(0, 20),
+      lineId: $('line-id').value.trim().slice(0, 100),
+      lineShareConsent: $('line-share-consent').checked,
       nationality: $('nationality').value === NAT_OTHER ? $('nationality-other').value.trim().slice(0, 30) : $('nationality').value,
       area: areaSel === AREA_OTHER ? $('area-other').value.trim().slice(0, 30) : areaSel,
       interests: [...picked.interests],
@@ -865,6 +870,10 @@ async function start() {
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = t('errNick'));
+    if (!profile.lineId) return void (err.textContent = t('errLineId'));
+    if (!profile.lineShareConsent) return void (err.textContent = t('errLineConsent'));
+    if (!profile.lineId) return void (err.textContent = t('errLineId'));
+    if (!profile.lineShareConsent) return void (err.textContent = t('errLineConsent'));
     if (!profile.nationality) return void (err.textContent = t('errNationality'));
     if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? t('errAreaOther') : t('errArea'));
     if (!profile.interests.length) return void (err.textContent = t('errInterest'));
