@@ -745,3 +745,8 @@ html[lang="en"] { --round: 'Noto Sans TC', sans-serif; }
 
 .calendar-slot-disabled { opacity: .38; background: #eee9e3; border-style: dashed; color: #958b82; cursor: not-allowed; }
 .calendar-slot-disabled input { cursor: not-allowed; }
+
+/* Japanese public holiday labels */
+.calendar-day-holiday { background: #fff8f5; }
+.calendar-date { display: flex; flex-direction: column; gap: 4px; }
+.holiday-label { display: inline-block; color: #a44d49; font-size: 10px; line-height: 1.3; font-weight: 600; overflow-wrap: anywhere; }
