@@ -872,8 +872,6 @@ async function start() {
     if (!profile.nick) return void (err.textContent = t('errNick'));
     if (!profile.lineId) return void (err.textContent = t('errLineId'));
     if (!profile.lineShareConsent) return void (err.textContent = t('errLineConsent'));
-    if (!profile.lineId) return void (err.textContent = t('errLineId'));
-    if (!profile.lineShareConsent) return void (err.textContent = t('errLineConsent'));
     if (!profile.nationality) return void (err.textContent = t('errNationality'));
     if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? t('errAreaOther') : t('errArea'));
     if (!profile.interests.length) return void (err.textContent = t('errInterest'));
