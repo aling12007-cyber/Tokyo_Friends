@@ -154,7 +154,7 @@ function buildDoc(s) {
     status: 'published',
     meetupsCompleted: 0,
     memberUids: members.map((u) => u.uid),
-    members: members.map((u) => ({ uid: u.uid, nick: u.nick, nationality: u.nationality || '', years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
+    members: members.map((u) => ({ uid: u.uid, nick: u.nick, lineId: u.lineId || '', nationality: u.nationality || '', years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
     common: commonTags(members),
     meetTimes: times,
     meetArea: commonArea(members),
