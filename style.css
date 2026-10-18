@@ -537,3 +537,19 @@ html[lang="en"] { --round: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
 .lang-level label { font-size: 14px; font-weight: 700; }
 .lang-level label::before { display: none !important; }
 .lang-level select { height: 42px; font-size: 15px; border-width: 2px; }
+
+/* 註冊／登入 */
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 2.5px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.auth-tab { min-height: 44px; border: 0; background: transparent; color: var(--ink); font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+.auth-tab[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+input[type="email"], input[type="password"] {
+  height: 50px; width: 100%; min-width: 0;
+  border: 2.5px solid var(--ink); border-radius: 14px; padding: 0 14px;
+  font-size: 16px; font-family: inherit; background: var(--paper); color: var(--ink);
+}
+#forgot { align-self: center; }
+.verify-box h2 { margin: 0; font-size: 20px; }
+.info { margin: 0; font-size: 14px; font-weight: 700; color: #1E5E47; background: var(--mint-soft); border-radius: 12px; padding: 8px 12px; }
+.info:empty { display: none; }
+.person-nat { font-size: 12px; background: var(--lemon-soft); border-radius: 999px; padding: 0 8px; }
+#nationality-other { margin-top: 4px; }

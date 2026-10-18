@@ -72,9 +72,18 @@ export function pairScore(a, b) {
   const pa = S(a.prefs), pb = S(b.prefs);
   for (const k of ['vibe-quiet', 'vibe-lively', 'vibe-themed', 'vibe-slow', 'vibe-longterm']) if (pa.has(k) && pb.has(k)) s += 1;
   for (const k of ['freq-weekly', 'freq-monthly', 'freq-casual']) if (pa.has(k) && pb.has(k)) s += 2;
-  // 想認識日本人 × 對方是日本人；想練日文／英文 × 對方會說
-  if (pa.has('who-jp') && b.years === 'local') s += 2;
-  if (pb.has('who-jp') && a.years === 'local') s += 2;
+  // 想認識日本人／同鄉／不同國家的人 × 對方的國籍
+  const known = (u) => u.nationality && u.nationality !== 'none';
+  const isJp = (u) => u.nationality === 'jp' || u.years === 'local';
+  if (pa.has('who-jp') && isJp(b)) s += 3;
+  if (pb.has('who-jp') && isJp(a)) s += 3;
+  if (known(a) && known(b)) {
+    const same = a.nationality === b.nationality;
+    if (pa.has('who-same') && same) s += 3;
+    if (pb.has('who-same') && same) s += 3;
+    if (pa.has('who-intl') && !same) s += 2;
+    if (pb.has('who-intl') && !same) s += 2;
+  }
   // 想練日文／英文 × 對方說得很好（母語或流利）加更多分
   for (const [want, l] of [['talk-ja', 'ja'], ['talk-en', 'en']]) {
     if (pa.has(want) && langs(b).has(l)) s += GOOD.has(lvOf(b, l)) ? 2 : 1;

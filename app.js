@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY, LANG_LEVELS } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY, LANG_LEVELS, NATIONALITIES, NATIONALITY_NONE } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -25,7 +25,7 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...LANG_LEVELS, ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...LANG_LEVELS, ...NATIONALITIES, NATIONALITY_NONE, ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
@@ -49,20 +49,26 @@ async function makeFirebaseBackend() {
   const app = initializeApp(firebaseConfig);
   const auth = authMod.getAuth(app);
   const db = fs.getFirestore(app);
-  let verifier = null;
-  let confirmation = null;
+  // 認證信裡的連結點完會回到這個網站
+  const verifySettings = () => ({ url: location.origin + location.pathname });
+  const toUser = (u) => (u ? { uid: u.uid, email: u.email, verified: u.emailVerified } : null);
 
   return {
     setLang(l) { auth.languageCode = { zh: 'zh-TW', ja: 'ja', en: 'en' }[l]; },
-    onUser(cb) { authMod.onAuthStateChanged(auth, (u) => cb(u ? { uid: u.uid } : null)); },
-    async sendCode(phone) {
-      if (!verifier) verifier = new authMod.RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-      confirmation = await authMod.signInWithPhoneNumber(auth, phone, verifier);
+    onUser(cb) { authMod.onAuthStateChanged(auth, (u) => cb(toUser(u))); },
+    async signup(email, password) {
+      const cred = await authMod.createUserWithEmailAndPassword(auth, email, password);
+      await authMod.sendEmailVerification(cred.user, verifySettings());
     },
-    async verify(code) {
-      if (!confirmation) throw new Error('no-confirmation');
-      await confirmation.confirm(code);
+    async login(email, password) { await authMod.signInWithEmailAndPassword(auth, email, password); },
+    async resendVerify() { await authMod.sendEmailVerification(auth.currentUser, verifySettings()); },
+    // 重新讀取帳號狀態；也更新登入憑證，讓資料庫規則看到「已認證」
+    async refreshUser() {
+      await auth.currentUser.reload();
+      await auth.currentUser.getIdToken(true);
+      return toUser(auth.currentUser);
     },
+    async resetPassword(email) { await authMod.sendPasswordResetEmail(auth, email, verifySettings()); },
     async getProfile(uid) {
       const snap = await fs.getDoc(fs.doc(db, 'users', uid));
       return snap.exists() ? snap.data() : null;
@@ -95,14 +101,22 @@ function makeDemoBackend() {
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   const write = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* 無法儲存時忽略 */ } };
   let listener = () => {};
+  const me = () => { const s = read(); return s.uid ? { uid: s.uid, email: s.email || '', verified: !!s.verified } : null; };
   return {
     setLang() {},
-    onUser(cb) { listener = cb; const s = read(); cb(s.uid ? { uid: s.uid } : null); },
-    async sendCode() { await new Promise((r) => setTimeout(r, 400)); },
-    async verify(code) {
-      if (code !== '123456') { const e = new Error('bad'); e.code = 'auth/invalid-verification-code'; throw e; }
-      const s = read(); s.uid = 'demo-user'; write(s); listener({ uid: s.uid });
+    // 示範模式：不寄信，按「我已經完成認證」就算通過
+    onUser(cb) { listener = cb; cb(me()); },
+    async signup(email) {
+      await new Promise((r) => setTimeout(r, 300));
+      const s = read(); s.uid = 'demo-user'; s.email = email; s.verified = false; s.verifyClicks = 0; write(s); listener(me());
     },
+    async login(email) {
+      await new Promise((r) => setTimeout(r, 300));
+      const s = read(); s.uid = 'demo-user'; s.email = email; if (s.verified === undefined) s.verified = true; write(s); listener(me());
+    },
+    async resendVerify() {},
+    async refreshUser() { const s = read(); s.verified = true; write(s); return me(); },
+    async resetPassword() {},
     async getProfile() { return read().profile || null; },
     async saveProfile(uid, profile) { const s = read(); s.profile = profile; write(s); },
     async getAvatar(uid) { return uid === 'demo-user' ? read().avatar || null : null; },
@@ -148,6 +162,8 @@ function setLang(l) {
   try { localStorage.setItem(LANG_KEY, l); } catch { /* 無法儲存時忽略 */ }
   applyI18n();
   // 重畫跟語言有關的動態內容，保留目前輸入
+  setAuthMode(authMode);
+  if (currentUser && !currentUser.verified) $('verify-text').textContent = t('verifyText', { email: currentUser.email || '' });
   if (!$('screen-profile').hidden) refreshProfileOptions();
   if (!$('screen-match').hidden && currentUser && currentProfile) showMatch(currentUser.uid, currentProfile);
 }
@@ -278,6 +294,21 @@ function addChips(box, options, selected, max, containerId, onChange) {
 
 function updateInterestCount() { $('interest-count').textContent = t('selectedN', { n: picked.interests.size }); }
 
+const NAT_OTHER = '__other';
+function fillNationality(value) {
+  const sel = $('nationality');
+  sel.innerHTML = '';
+  sel.add(new Option(t('nationalityPick'), ''));
+  for (const o of NATIONALITIES) sel.add(new Option(o[LI()], o[0]));
+  sel.add(new Option(t('nationalityOther'), NAT_OTHER));
+  sel.add(new Option(NATIONALITY_NONE[LI()], NATIONALITY_NONE[0]));
+  const known = new Set([...NATIONALITIES.map((o) => o[0]), NATIONALITY_NONE[0]]);
+  const other = $('nationality-other');
+  if (value && value !== NAT_OTHER && !known.has(value)) { sel.value = NAT_OTHER; other.value = value; }
+  else sel.value = value || '';
+  other.hidden = sel.value !== NAT_OTHER;
+}
+
 function fillAge(value) {
   const sel = $('age');
   sel.innerHTML = '';
@@ -389,6 +420,7 @@ function refreshProfileOptions() {
   const lifeVal = $('lifestyle').value;
   fillLifestyle(lifeVal);
   fillAge($('age').value);
+  { const nv = $('nationality').value === NAT_OTHER ? ($('nationality-other').value || NAT_OTHER) : $('nationality').value; const nt = $('nationality-other').value; fillNationality(nv); if ($('nationality').value === NAT_OTHER) $('nationality-other').value = nt; }
   fillAreaSelect(areaVal);
   if ($('area').value === AREA_OTHER) $('area-other').value = otherText;
   fillYears(yearsVal);
@@ -411,6 +443,7 @@ function loadProfileForm(p, avatar) {
   fillYears(p?.years);
   fillLifestyle(p?.lifestyle);
   fillAge(p?.age);
+  fillNationality(p?.nationality);
   picked.ageWant = new Set(p?.ageWant || []);
   picked.freeTime = new Set(p?.freeTime || []);
   picked.prefs = new Set(p?.prefs || []);
@@ -494,7 +527,7 @@ function renderSummary(p, avatar) {
   const dl = el('dl');
   const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
   const rows = [
-    [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumNationality'), label(p.nationality) || '—'], [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
     [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
     [t('sumStyle'), labels(p.prefs) || '—'],
     [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
@@ -513,7 +546,8 @@ async function renderGroup(g) {
     const li = el('li', 'member');
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
-    const meta = m.meta || [label(m.years), langsText(m.langs, m.langLevels)].filter(Boolean).join('・');
+    const nat = m.nationality && m.nationality !== 'none' ? label(m.nationality) : '';
+    const meta = m.meta || [nat, label(m.years), langsText(m.langs, m.langLevels)].filter(Boolean).join('・');
     text.appendChild(el('div', 'member-meta', meta));
     li.append(makeAvatar(m.nick, i, avatars[i]), text);
     ul.appendChild(li);
@@ -544,18 +578,39 @@ async function showMatch(uid, profile) {
 // ---------- 錯誤訊息 ----------
 function authErrorText(e) {
   const code = e?.code || '';
-  if (code.includes('invalid-phone-number')) return t('errBadPhone');
+  if (code.includes('email-already-in-use')) return t('errEmailInUse');
+  if (code.includes('invalid-email')) return t('errEmail');
+  if (code.includes('weak-password')) return t('errPassword');
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found') || code.includes('invalid-login')) return t('errLoginFail');
   if (code.includes('too-many-requests')) return t('errTooMany');
-  if (code.includes('invalid-verification-code')) return t('errBadCode');
-  if (code.includes('code-expired')) return t('errExpired');
   return t('errGeneric');
 }
 
-function normalizePhone(country, raw) {
-  let digits = raw.replace(/[^\d]/g, '');
-  if (digits.startsWith('0')) digits = digits.slice(1);
-  return country + digits;
+// ---------- 註冊／登入 ----------
+let authMode = 'signup';
+let resendAt = 0;
+
+function setAuthMode(mode) {
+  authMode = mode;
+  for (const b of document.querySelectorAll('.auth-tab')) b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false');
+  $('auth-submit').textContent = t(mode === 'signup' ? 'signupBtn' : 'loginBtn');
+  $('password-label').textContent = t(mode === 'signup' ? 'passwordLabel' : 'passwordLabelLogin');
+  $('password').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+  $('forgot').hidden = mode !== 'login';
+  $('register-error').textContent = '';
+  $('register-info').textContent = '';
 }
+
+function showAuth(user) {
+  const needVerify = !!user && !user.verified;
+  $('auth-form').hidden = needVerify;
+  document.querySelector('.auth-tabs').hidden = needVerify;
+  $('verify-box').hidden = !needVerify;
+  if (needVerify) $('verify-text').textContent = t('verifyText', { email: user.email || '' });
+  show('register');
+}
+
+const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 // ---------- 啟動 ----------
 async function start() {
@@ -581,7 +636,7 @@ async function start() {
 
   backend.onUser(async (user) => {
     currentUser = user;
-    if (!user) { $('phone-form').hidden = false; $('code-form').hidden = true; show('register'); return; }
+    if (!user || !user.verified) { showAuth(user); return; }
     [currentProfile, currentAvatar] = await Promise.all([
       backend.getProfile(user.uid).catch(() => null),
       backend.getAvatar(user.uid).catch(() => null)
@@ -590,35 +645,73 @@ async function start() {
     else { loadProfileForm(null, currentAvatar); show('profile'); }
   });
 
-  $('phone-form').addEventListener('submit', async (ev) => {
+  for (const b of document.querySelectorAll('.auth-tab')) b.addEventListener('click', () => setAuthMode(b.dataset.mode));
+  setAuthMode('signup');
+
+  $('auth-form').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     $('register-error').textContent = '';
-    const raw = $('phone').value.trim();
-    if (raw.replace(/[^\d]/g, '').length < 8) { $('register-error').textContent = t('errPhoneEmpty'); return; }
-    const btn = $('send-code');
-    btn.disabled = true; btn.textContent = t('sending');
+    $('register-info').textContent = '';
+    const email = $('email').value.trim();
+    const password = $('password').value;
+    if (!validEmail(email)) { $('register-error').textContent = t('errEmail'); return; }
+    if (password.length < 8) { $('register-error').textContent = t('errPassword'); return; }
+    const btn = $('auth-submit');
+    btn.disabled = true; btn.textContent = t('working');
     try {
-      await backend.sendCode(normalizePhone($('country').value, raw));
-      $('phone-form').hidden = true;
-      $('code-form').hidden = false;
-      $('code').focus();
+      if (authMode === 'signup') { await backend.signup(email, password); resendAt = Date.now() + 60000; }
+      else await backend.login(email, password);
+      $('password').value = '';
     } catch (e) {
       $('register-error').textContent = authErrorText(e);
     } finally {
-      btn.disabled = false; btn.textContent = t('sendCode');
+      btn.disabled = false; btn.textContent = t(authMode === 'signup' ? 'signupBtn' : 'loginBtn');
     }
   });
 
-  $('code-form').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
+  $('forgot').addEventListener('click', async () => {
+    const email = $('email').value.trim();
     $('register-error').textContent = '';
-    const code = $('code').value.trim();
-    if (!/^\d{6}$/.test(code)) { $('register-error').textContent = t('errCode6'); return; }
-    try { await backend.verify(code); } catch (e) { $('register-error').textContent = authErrorText(e); }
+    if (!validEmail(email)) { $('register-error').textContent = t('errNeedEmail'); $('email').focus(); return; }
+    try { await backend.resetPassword(email); $('register-info').textContent = t('resetSent'); }
+    catch (e) {
+      // 不透露這個 Email 有沒有註冊過
+      if ((e?.code || '').includes('user-not-found')) $('register-info').textContent = t('resetSent');
+      else $('register-error').textContent = authErrorText(e);
+    }
   });
 
-  $('change-phone').addEventListener('click', () => {
-    $('code-form').hidden = true; $('phone-form').hidden = false; $('code').value = '';
+  $('verify-done').addEventListener('click', async () => {
+    $('register-error').textContent = '';
+    $('register-info').textContent = '';
+    try {
+      const u = await backend.refreshUser();
+      if (u && u.verified) {
+        currentUser = u;
+        [currentProfile, currentAvatar] = await Promise.all([
+          backend.getProfile(u.uid).catch(() => null),
+          backend.getAvatar(u.uid).catch(() => null)
+        ]);
+        if (currentProfile) showMatch(u.uid, currentProfile);
+        else { loadProfileForm(null, currentAvatar); show('profile'); }
+      } else $('register-error').textContent = t('verifyNotYet');
+    } catch (e) { $('register-error').textContent = authErrorText(e); }
+  });
+
+  $('verify-resend').addEventListener('click', async () => {
+    $('register-error').textContent = '';
+    const wait = Math.ceil((resendAt - Date.now()) / 1000);
+    if (wait > 0) { $('register-info').textContent = t('verifyWait', { n: wait }); return; }
+    try { await backend.resendVerify(); resendAt = Date.now() + 60000; $('register-info').textContent = t('verifyResent'); }
+    catch (e) { $('register-error').textContent = authErrorText(e); }
+  });
+
+  $('logout-0').addEventListener('click', () => backend.logout());
+
+  $('nationality').addEventListener('change', () => {
+    const isOther = $('nationality').value === NAT_OTHER;
+    $('nationality-other').hidden = !isOther;
+    if (isOther) $('nationality-other').focus();
   });
 
   $('area').addEventListener('change', () => {
@@ -663,6 +756,7 @@ async function start() {
     const areaSel = $('area').value;
     const profile = {
       nick: $('nick').value.trim().slice(0, 20),
+      nationality: $('nationality').value === NAT_OTHER ? $('nationality-other').value.trim().slice(0, 30) : $('nationality').value,
       area: areaSel === AREA_OTHER ? $('area-other').value.trim().slice(0, 30) : areaSel,
       interests: [...picked.interests],
       activities: [...picked.activities],
@@ -678,6 +772,7 @@ async function start() {
       years: $('years').value
     };
     if (!profile.nick) return void (err.textContent = t('errNick'));
+    if (!profile.nationality) return void (err.textContent = t('errNationality'));
     if (!profile.area) return void (err.textContent = areaSel === AREA_OTHER ? t('errAreaOther') : t('errArea'));
     if (!profile.interests.length) return void (err.textContent = t('errInterest'));
     if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));

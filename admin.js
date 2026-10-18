@@ -1,6 +1,6 @@
 import { firebaseConfig } from './firebase-config.js';
 import {
-  INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, LIFESTYLES, FREE_TIMES, PREF_GROUPS, AGES, AGE_ANY, AREA_GROUPS, FREE_TIME_DEFAULTS, LANG_LEVELS
+  INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, LIFESTYLES, FREE_TIMES, PREF_GROUPS, AGES, AGE_ANY, AREA_GROUPS, FREE_TIME_DEFAULTS, LANG_LEVELS, NATIONALITIES, NATIONALITY_NONE
 } from './i18n.js';
 import { autoMatch, groupScore, commonTags, commonArea, groupSlots, groupWarnings, sizeType } from './match.js';
 
@@ -8,7 +8,7 @@ const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
 
 // 後台只用中文顯示
-const ALL = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AGES, AGE_ANY, ...LANG_LEVELS,
+const ALL = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...AGES, AGE_ANY, ...LANG_LEVELS, ...NATIONALITIES, NATIONALITY_NONE,
   ...PREF_GROUPS.flatMap((g) => g.items), ...AREA_GROUPS.flatMap((g) => g.items)];
 const NAME = new Map(ALL.map((o) => [o[0], o[1]]));
 const zh = (id) => NAME.get(id) || id || '';
@@ -68,6 +68,7 @@ function makeDemoAdmin() {
     const size = r < 0.55 ? ['size-small'] : r < 0.8 ? ['size-large'] : ['size-small', 'size-large'];
     return {
       uid: `demo-${i}`,
+      nationality: { zh: pick(['tw', 'tw', 'cn', 'hk']), ja: 'jp', en: pick(['us', 'gb', 'au', 'ca']), ko: 'kr' }[native] || 'none',
       nick,
       age: pick(AGES)[0],
       ageWant: rnd() < 0.65 ? ['age-any'] : some(AGES.map((a) => a[0]), 3, 5),
@@ -146,7 +147,7 @@ function buildDoc(s) {
   const doc = {
     month: $('month').value,
     memberUids: members.map((u) => u.uid),
-    members: members.map((u) => ({ uid: u.uid, nick: u.nick, years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
+    members: members.map((u) => ({ uid: u.uid, nick: u.nick, nationality: u.nationality || '', years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
     common: commonTags(members),
     meetTimes: times.length ? times : ['irregular'],
     meetArea: commonArea(members),
@@ -201,6 +202,7 @@ function personRow(u, fromIdx) {
   const row = el('div', 'person');
   const top = el('div', 'person-top');
   top.append(el('span', 'person-name', u.nick || '（無暱稱）'), el('span', 'person-area', zh(u.area)));
+  if (u.nationality && u.nationality !== 'none') top.appendChild(el('span', 'person-nat', zh(u.nationality)));
   const meta = el('div', 'person-meta', [
     zh(u.age), zh(u.lifestyle), zhs(u.freeTime), zhLangs(u),
     sizeType(u) === 'small' ? '小團體' : sizeType(u) === 'large' ? '多人' : '人數不拘'
@@ -313,7 +315,7 @@ async function start() {
   const user = await api.waitUser();
   if (!user) {
     gate.hidden = false;
-    gate.append(el('p', null, '請先到首頁用手機號碼登入，再回到這一頁。'));
+    gate.append(el('p', null, '請先到首頁登入（要完成 Email 認證），再回到這一頁。'));
     const a = el('a', 'btn btn-primary', '前往首頁登入');
     a.href = 'index.html';
     gate.appendChild(a);

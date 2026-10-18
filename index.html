@@ -102,34 +102,33 @@
         <p class="muted" data-i18n="heroSub"></p>
       </div>
 
-      <form id="phone-form" class="card" novalidate>
+      <div class="auth-tabs" role="group" data-i18n-aria="authMode">
+        <button type="button" class="auth-tab" data-mode="signup" data-i18n="tabSignup"></button>
+        <button type="button" class="auth-tab" data-mode="login" data-i18n="tabLogin"></button>
+      </div>
+
+      <form id="auth-form" class="card" novalidate>
         <div class="field">
-          <label for="phone" data-i18n="phoneLabel"></label>
-          <div class="row">
-            <select id="country" data-i18n-aria="countryLabel">
-              <option value="+81">+81</option>
-              <option value="+886">+886</option>
-              <option value="+1">+1</option>
-              <option value="+82">+82</option>
-              <option value="+852">+852</option>
-              <option value="+44">+44</option>
-            </select>
-            <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="090-1234-5678" required>
-          </div>
+          <label for="email" data-i18n="emailLabel"></label>
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" required>
         </div>
-        <button id="send-code" type="submit" class="btn btn-outline" data-i18n="sendCode"></button>
-        <div id="recaptcha-container"></div>
+        <div class="field">
+          <label for="password" id="password-label" data-i18n="passwordLabel"></label>
+          <input id="password" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <button id="auth-submit" type="submit" class="btn btn-primary"></button>
+        <button id="forgot" type="button" class="btn-link" data-i18n="forgot" hidden></button>
       </form>
 
-      <form id="code-form" class="card" novalidate hidden>
-        <div class="field">
-          <label for="code" data-i18n="codeLabel"></label>
-          <input id="code" class="code-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" required>
-        </div>
-        <button type="submit" class="btn btn-primary" data-i18n="verify"></button>
-        <button id="change-phone" type="button" class="btn-link" data-i18n="changePhone"></button>
-      </form>
+      <div id="verify-box" class="card verify-box" hidden>
+        <h2 data-i18n="verifyTitle"></h2>
+        <p class="muted" id="verify-text"></p>
+        <button id="verify-done" type="button" class="btn btn-primary" data-i18n="verifyDone"></button>
+        <button id="verify-resend" type="button" class="btn btn-outline" data-i18n="verifyResend"></button>
+        <button id="logout-0" type="button" class="btn-link" data-i18n="useOtherEmail"></button>
+      </div>
 
+      <p id="register-info" class="info" role="status"></p>
       <p id="register-error" class="error" role="alert"></p>
       <p class="note small" data-i18n-html="privacyNote"></p>
     </section>
@@ -166,6 +165,12 @@
         <div class="field">
           <label for="nick" data-i18n="nick"></label>
           <input id="nick" type="text" maxlength="20" data-i18n-ph="nickPh" required>
+        </div>
+
+        <div class="field">
+          <label for="nationality" data-i18n="nationality"></label>
+          <select id="nationality" required></select>
+          <input id="nationality-other" type="text" maxlength="30" data-i18n-ph="nationalityOtherPh" data-i18n-aria="nationalityOtherPh" hidden>
         </div>
 
         <div class="field">
