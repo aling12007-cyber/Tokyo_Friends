@@ -94,7 +94,7 @@ export const T = {
     agree: '<a href="#rules" class="open-rules">コミュニティルール</a>に同意します：勧誘・宗教勧誘・ハラスメント禁止、初対面は公共の場所で。',
     save: '保存してマッチング開始', editProfile: 'プロフィールを編集',
     doneEyebrow: '登録完了', waitingTitle: 'グループを探しています',
-    waitingSub: '登録完了。マッチング結果は毎週水曜日に管理者が公開します。公開後、3〜4 人のグループがここに表示されます。
+    waitingSub: '登録完了。マッチング結果は毎週水曜日に管理者が公開します。公開後、3〜4 人のグループがここに表示されます。',
     matchedEyebrow: 'マッチング完了', groupTitle: '今月のあなたのグループ',
     common: 'みんなの共通点', meetTitle: '初めて会うなら', meetDefault: '週末の昼・公共の場所（カフェやレストラン）',
     meetAuto: '{when}・{area}周辺（公共の場所）',
@@ -149,7 +149,7 @@ export const T = {
     agree: 'I agree to the <a href="#rules" class="open-rules">community rules</a>: no selling, no recruiting, no harassment, and first meetups in public places.',
     save: 'Save & start matching', editProfile: 'Edit profile',
     doneEyebrow: 'You’re signed up', waitingTitle: 'Finding your group',
-    waitingSub: 'Each month we group 4–5 people who live nearby and share interests. Your group will show up here.',
+    waitingSub: 'You’re registered and waiting. A moderator publishes groups of 3–4 every Wednesday; your group will appear here after publication.',
     matchedEyebrow: 'Matched!', groupTitle: 'Your group this month',
     common: 'What you have in common', meetTitle: 'Suggested first meetup', meetDefault: 'Weekend daytime, in a public place (café or restaurant)',
     meetAuto: '{when}, near {area} (public place)',
