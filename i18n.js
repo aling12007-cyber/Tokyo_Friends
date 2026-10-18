@@ -22,6 +22,7 @@ export const T = {
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
     langs: '會說的語言', wants: '想找什麼樣的朋友',
+    ageTitle: '年齡層', myAge: '你的年齡層', agePick: '請選擇', ageWant: '想認識的年齡層（可複選）', ageHint: '本服務限 18 歲以上使用。', errAge: '請選擇你的年齡層。', errAgeWant: '請選擇想認識的年齡層，或選「不在意年齡」。', sumAge: '年齡',
     friendStyle: '交友傾向', friendStyleHint: '聚會人數必選，其他選填。', errPrefSize: '請選擇想參加的聚會人數。', sumStyle: '傾向',
     freeTime: '空閒時間', lifestyle: '你的生活型態', lifestylePick: '請選擇', freeTimeWhen: '通常什麼時候有空（可複選）',
     errLifestyle: '請選擇生活型態。', errFreeTime: '請至少選一個有空的時段。', sumFree: '有空',
@@ -32,6 +33,7 @@ export const T = {
     waitingSub: '每個月會把住在附近、興趣相近的 4～5 人湊成一組，配好後會出現在這裡。',
     matchedEyebrow: '配對完成', groupTitle: '這是你這個月的小組',
     common: '你們的共同點', meetTitle: '建議第一次見面', meetDefault: '週末白天・公開場所（咖啡廳、餐廳）',
+    meetAuto: '{when}・{area}附近（公開場所）',
     joinChat: '加入小組聊天', rules: '安全守則', report: '檢舉',
     rulesTitle: '社群守則',
     rulesList: ['只用暱稱，不要求別人提供真名、住址、工作地點。', '禁止推銷、直銷、傳教、募款、招攬投資。', '禁止騷擾或以交往為目的的私訊；這裡是交朋友的地方。', '第一次見面請選公開場所，並告訴信任的人你去哪裡。', '遇到不舒服的事請檢舉，違規者會被移除。'],
@@ -67,6 +69,7 @@ export const T = {
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
     langs: '話せる言語', wants: 'どんな友達を探してる？',
+    ageTitle: '年齢層', myAge: 'あなたの年齢層', agePick: '選んでください', ageWant: '出会いたい年齢層（複数選択可）', ageHint: '18 歳以上の方のみご利用いただけます。', errAge: '年齢層を選んでください。', errAgeWant: '出会いたい年齢層を選ぶか、「年齢は気にしない」を選んでください。', sumAge: '年齢',
     friendStyle: '友達づくりのスタイル', friendStyleHint: '人数は必須、ほかは任意です。', errPrefSize: '参加したいグループの人数を選んでください。', sumStyle: 'スタイル',
     freeTime: '空いている時間', lifestyle: 'ライフスタイル', lifestylePick: '選んでください', freeTimeWhen: 'だいたい空いている時間（複数選択可）',
     errLifestyle: 'ライフスタイルを選んでください。', errFreeTime: '空いている時間を 1 つ以上選んでください。', sumFree: '空き時間',
@@ -77,6 +80,7 @@ export const T = {
     waitingSub: '毎月、近くに住んでいて趣味が近い 4〜5 人でグループを作ります。決まったらここに表示されます。',
     matchedEyebrow: 'マッチング完了', groupTitle: '今月のあなたのグループ',
     common: 'みんなの共通点', meetTitle: '初めて会うなら', meetDefault: '週末の昼・公共の場所（カフェやレストラン）',
+    meetAuto: '{when}・{area}周辺（公共の場所）',
     joinChat: 'グループチャットに参加', rules: '安全ガイド', report: '通報',
     rulesTitle: 'コミュニティルール',
     rulesList: ['ニックネームのみ。本名・住所・勤務先を聞かないでください。', '営業・マルチ・宗教勧誘・募金・投資の勧誘は禁止です。', 'ハラスメントや恋愛目的の DM は禁止。ここは友達作りの場です。', '初めて会うときは公共の場所で。行き先を信頼できる人に伝えましょう。', '嫌なことがあったら通報してください。違反した人は削除します。'],
@@ -112,6 +116,7 @@ export const T = {
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
     langs: 'Languages you speak', wants: 'What kind of friends?',
+    ageTitle: 'Age', myAge: 'Your age group', agePick: 'Choose one', ageWant: 'Ages you’d like to meet (pick any)', ageHint: 'You must be 18 or older to use this service.', errAge: 'Please choose your age group.', errAgeWant: 'Please choose the ages you’d like to meet, or “Any age”.', sumAge: 'Age',
     friendStyle: 'Your friendship style', friendStyleHint: 'Group size is required; the rest is optional.', errPrefSize: 'Please choose a group size.', sumStyle: 'Style',
     freeTime: 'Free time', lifestyle: 'Your lifestyle', lifestylePick: 'Choose one', freeTimeWhen: 'When are you usually free? (pick any)',
     errLifestyle: 'Please choose your lifestyle.', errFreeTime: 'Please pick at least one time you’re free.', sumFree: 'Free',
@@ -122,6 +127,7 @@ export const T = {
     waitingSub: 'Each month we group 4–5 people who live nearby and share interests. Your group will show up here.',
     matchedEyebrow: 'Matched!', groupTitle: 'Your group this month',
     common: 'What you have in common', meetTitle: 'Suggested first meetup', meetDefault: 'Weekend daytime, in a public place (café or restaurant)',
+    meetAuto: '{when}, near {area} (public place)',
     joinChat: 'Join group chat', rules: 'Safety rules', report: 'Report',
     rulesTitle: 'Community rules',
     rulesList: ['Nicknames only — don’t ask for real names, addresses or workplaces.', 'No sales, MLM, religious recruiting, fundraising or investment pitches.', 'No harassment or dating-focused messages — this is for friendship.', 'Meet in public places the first time and tell someone you trust where you’re going.', 'Report anything that makes you uncomfortable. Rule-breakers will be removed.'],
@@ -330,3 +336,13 @@ export const PREF_GROUPS = [
     ['talk-any', '什麼語言都行', '何語でも OK', 'Any language']
   ] }
 ];
+
+export const AGES = [
+  ['18-24', '18～24 歲', '18〜24 歳', '18–24'],
+  ['25-29', '25～29 歲', '25〜29 歳', '25–29'],
+  ['30-34', '30～34 歲', '30〜34 歳', '30–34'],
+  ['35-39', '35～39 歲', '35〜39 歳', '35–39'],
+  ['40-49', '40～49 歲', '40〜49 歳', '40–49'],
+  ['50+', '50 歲以上', '50 歳以上', '50+']
+];
+export const AGE_ANY = ['age-any', '不在意年齡', '年齢は気にしない', 'Any age'];

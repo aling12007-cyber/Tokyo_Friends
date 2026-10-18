@@ -2,12 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // 管理者：在 admins 集合裡有自己 uid 的人（只能從 Firebase 主控台新增）
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     // 每個人只能讀寫自己的個人檔案，而且只能存這幾個欄位（不存手機號碼）
     match /users/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if (request.auth != null && request.auth.uid == uid) || isAdmin();
       allow create, update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['nick', 'area', 'interests', 'activities', 'activityOther', 'langs', 'wants', 'prefs', 'lifestyle', 'freeTime', 'years', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['nick', 'area', 'interests', 'activities', 'activityOther', 'langs', 'wants', 'age', 'ageWant', 'prefs', 'lifestyle', 'freeTime', 'years', 'updatedAt'])
         && request.resource.data.nick is string
         && request.resource.data.nick.size() > 0
         && request.resource.data.nick.size() <= 20
@@ -20,6 +30,9 @@ service cloud.firestore {
         && request.resource.data.activityOther is string
         && request.resource.data.activityOther.size() <= 40
         && request.resource.data.langs is list
+        && request.resource.data.age is string
+        && request.resource.data.ageWant is list
+        && request.resource.data.ageWant.size() <= 7
         && request.resource.data.prefs is list
         && request.resource.data.prefs.size() <= 20
         && request.resource.data.lifestyle is string
@@ -42,10 +55,10 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
-    // 小組由管理員在 Firebase 主控台建立；成員只能看到自己所在的小組
+    // 小組由管理者在後台（admin.html）建立；成員只能看到自己所在的小組
     match /groups/{groupId} {
-      allow read: if request.auth != null && request.auth.uid in resource.data.memberUids;
-      allow write: if false;
+      allow read: if (request.auth != null && request.auth.uid in resource.data.memberUids) || isAdmin();
+      allow write: if isAdmin();
     }
   }
 }

@@ -1,5 +1,5 @@
 import { firebaseConfig } from './firebase-config.js';
-import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS } from './i18n.js';
+import { T, LANGS_UI, HTML_LANG, AREA_GROUPS, INTERESTS, ACTIVITIES, LANGS, WANTS, YEARS, INTEREST_GROUPS, ACTIVITY_GROUPS, LIFESTYLES, FREE_TIMES, FREE_TIME_DEFAULTS, PREF_GROUPS, AGES, AGE_ANY } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const DEMO = !firebaseConfig.apiKey;
@@ -25,7 +25,7 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
@@ -65,9 +65,11 @@ async function makeFirebaseBackend() {
       await fs.setDoc(fs.doc(db, 'users', uid), { ...profile, updatedAt: fs.serverTimestamp() });
     },
     async getGroup(uid) {
-      const q = fs.query(fs.collection(db, 'groups'), fs.where('memberUids', 'array-contains', uid), fs.limit(1));
+      // 可能有好幾個月的小組，顯示最新的那一組
+      const q = fs.query(fs.collection(db, 'groups'), fs.where('memberUids', 'array-contains', uid));
       const res = await fs.getDocs(q);
-      return res.empty ? null : res.docs[0].data();
+      const list = res.docs.map((d) => d.data()).sort((a, b) => String(b.month || '').localeCompare(String(a.month || '')));
+      return list[0] || null;
     },
     // 頭像存在 avatars/{uid}，縮成 256px 的小圖，不需要 Firebase Storage
     async getAvatar(uid) {
@@ -152,7 +154,7 @@ function show(name) {
 }
 
 // ---------- 標籤選擇 ----------
-const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set() };
+const picked = { interests: new Set(), activities: new Set(), langs: new Set(), wants: new Set(), freeTime: new Set(), prefs: new Set(), ageWant: new Set() };
 
 // 兩層選擇：先列出大分類，點開才看到裡面的小項目（一次只開一個）
 const openCat = {};   // 每個區塊目前打開的分類 index
@@ -269,6 +271,40 @@ function addChips(box, options, selected, max, containerId, onChange) {
 
 function updateInterestCount() { $('interest-count').textContent = t('selectedN', { n: picked.interests.size }); }
 
+function fillAge(value) {
+  const sel = $('age');
+  sel.innerHTML = '';
+  sel.add(new Option(t('agePick'), ''));
+  for (const o of AGES) sel.add(new Option(o[LI()], o[0]));
+  sel.value = value || '';
+}
+
+// 想認識的年齡層：選「不在意年齡」會清掉其他；選其他會取消「不在意」
+function renderAgeWant() {
+  const box = $('chips-agewant');
+  box.innerHTML = '';
+  const buttons = [];
+  for (const opt of [...AGES, AGE_ANY]) {
+    const id = opt[0];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = opt[LI()];
+    b.addEventListener('click', () => {
+      const set = picked.ageWant;
+      if (set.has(id)) set.delete(id);
+      else {
+        if (id === AGE_ANY[0]) set.clear(); else set.delete(AGE_ANY[0]);
+        set.add(id);
+      }
+      for (const [bid, btn] of buttons) btn.setAttribute('aria-pressed', set.has(bid) ? 'true' : 'false');
+    });
+    b.setAttribute('aria-pressed', picked.ageWant.has(id) ? 'true' : 'false');
+    buttons.push([id, b]);
+    box.appendChild(b);
+  }
+}
+
 function fillLifestyle(value) {
   const sel = $('lifestyle');
   sel.innerHTML = '';
@@ -310,6 +346,7 @@ function renderAllChips() {
   renderChips('chips-wants', WANTS, picked.wants);
   renderChips('chips-free', FREE_TIMES, picked.freeTime);
   renderPrefs();
+  renderAgeWant();
   updateInterestCount();
 }
 
@@ -320,6 +357,7 @@ function refreshProfileOptions() {
   const yearsVal = $('years').value;
   const lifeVal = $('lifestyle').value;
   fillLifestyle(lifeVal);
+  fillAge($('age').value);
   fillAreaSelect(areaVal);
   if ($('area').value === AREA_OTHER) $('area-other').value = otherText;
   fillYears(yearsVal);
@@ -341,6 +379,8 @@ function loadProfileForm(p, avatar) {
   fillAreaSelect(p?.area);
   fillYears(p?.years);
   fillLifestyle(p?.lifestyle);
+  fillAge(p?.age);
+  picked.ageWant = new Set(p?.ageWant || []);
   picked.freeTime = new Set(p?.freeTime || []);
   picked.prefs = new Set(p?.prefs || []);
   picked.interests = new Set(p?.interests || []);
@@ -423,6 +463,7 @@ function renderSummary(p, avatar) {
   const todo = [labels(p.activities), p.activityOther].filter(Boolean).join(lang === 'en' ? ', ' : '、');
   const rows = [
     [t('sumArea'), label(p.area)], [t('sumInterests'), labels(p.interests)], [t('sumTodo'), todo || '—'],
+    [t('sumAge'), `${label(p.age)} → ${labels(p.ageWant)}`],
     [t('sumStyle'), labels(p.prefs) || '—'],
     [t('sumFree'), [label(p.lifestyle), labels(p.freeTime)].filter(Boolean).join(lang === 'en' ? ': ' : '・')],
     [t('sumLangs'), labels(p.langs)], [t('sumWants'), labels(p.wants)], [t('sumYears'), label(p.years)]
@@ -440,14 +481,16 @@ async function renderGroup(g) {
     const li = el('li', 'member');
     const text = el('div');
     text.appendChild(el('div', 'member-name', m.nick));
-    text.appendChild(el('div', 'member-meta', m.meta || ''));
+    const meta = m.meta || [label(m.years), labels(m.langs)].filter(Boolean).join('・');
+    text.appendChild(el('div', 'member-meta', meta));
     li.append(makeAvatar(m.nick, i, avatars[i]), text);
     ul.appendChild(li);
   });
   const tags = $('common-tags');
   tags.innerHTML = '';
   for (const tag of g.common || []) tags.appendChild(el('span', 'tag', label(tag)));
-  $('meet-text').textContent = g.meet || t('meetDefault');
+  const auto = g.meetTimes || g.meetArea ? t('meetAuto', { when: labels(g.meetTimes) || '—', area: label(g.meetArea) || '—' }) : '';
+  $('meet-text').textContent = g.meet || auto || t('meetDefault');
   const link = $('chat-link');
   const safeUrl = typeof g.chatUrl === 'string' && /^https:\/\//.test(g.chatUrl) ? g.chatUrl : '';
   link.hidden = !safeUrl;
@@ -594,6 +637,8 @@ async function start() {
       activityOther: $('activity-other').value.trim().slice(0, 40),
       langs: [...picked.langs],
       wants: [...picked.wants],
+      age: $('age').value,
+      ageWant: [...picked.ageWant],
       prefs: [...picked.prefs],
       lifestyle: $('lifestyle').value,
       freeTime: [...picked.freeTime],
@@ -605,6 +650,8 @@ async function start() {
     if (!profile.activities.length && !profile.activityOther) return void (err.textContent = t('errActivity'));
     if (!profile.langs.length) return void (err.textContent = t('errLang'));
     if (!profile.wants.length) return void (err.textContent = t('errWant'));
+    if (!profile.age) return void (err.textContent = t('errAge'));
+    if (!profile.ageWant.length) return void (err.textContent = t('errAgeWant'));
     if (!profile.prefs.some((id) => id.startsWith('size-'))) return void (err.textContent = t('errPrefSize'));
     if (!profile.lifestyle) return void (err.textContent = t('errLifestyle'));
     if (!profile.freeTime.length) return void (err.textContent = t('errFreeTime'));
