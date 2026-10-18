@@ -7,7 +7,7 @@
   <meta name="description" content="在東京，找到合得來的朋友。東京で気の合う友達を。Find friends in Tokyo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+TC:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -57,44 +57,55 @@
         </span>
       </header>
 
-      <!-- 台灣 × 東京 插畫 -->
-      <svg class="banner" viewBox="0 0 360 128" role="img" data-i18n-aria="bannerAlt">
-        <defs><clipPath id="banner-clip"><rect x="2" y="2" width="356" height="124" rx="20"/></clipPath></defs>
+      <!-- Tokyo seasonal illustration: quiet ink lines and muted sakura tones -->
+      <svg class="banner" viewBox="0 0 720 250" role="img" data-i18n-aria="bannerAlt">
+        <defs>
+          <linearGradient id="tokyo-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e9eeeb"/>
+            <stop offset="1" stop-color="#f8eee5"/>
+          </linearGradient>
+          <linearGradient id="tokyo-sun" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e4b8ad" stop-opacity=".8"/>
+            <stop offset="1" stop-color="#f1d8c9" stop-opacity=".2"/>
+          </linearGradient>
+          <clipPath id="banner-clip"><rect x="1" y="1" width="718" height="248" rx="12"/></clipPath>
+        </defs>
         <g clip-path="url(#banner-clip)">
-          <rect x="0" y="0" width="360" height="128" fill="#DCF0FF"/>
-          <g fill="#FFFFFF" opacity=".9">
-            <ellipse cx="170" cy="26" rx="22" ry="8"/><ellipse cx="184" cy="20" rx="13" ry="9"/>
-            <ellipse cx="330" cy="40" rx="18" ry="6.5"/><ellipse cx="320" cy="35" rx="10" ry="7"/>
+          <rect width="720" height="250" fill="url(#tokyo-sky)"/>
+          <circle cx="555" cy="65" r="48" fill="url(#tokyo-sun)"/>
+          <path d="M0 190 Q110 158 220 185 T445 178 T720 172 V250 H0Z" fill="#d8e0d8" opacity=".72"/>
+          <g fill="#d6d8d2" stroke="#b6beb7" stroke-width="1">
+            <path d="M18 154h42v96H18z M70 132h56v118H70z M137 169h40v81h-40z M188 145h52v105h-52z M470 155h43v95h-43z M523 130h48v120h-48z M581 161h39v89h-39z M630 145h65v105h-65z"/>
+            <path d="M18 170h42M70 151h56M188 165h52M523 150h48M630 165h65" fill="none" stroke="#f7f1e9" stroke-width="2"/>
           </g>
-          <use href="#plum" x="18" y="12" width="26" height="26"/>
-          <use href="#plum" x="44" y="34" width="15" height="15"/>
-          <use href="#lantern" x="92" y="10" width="26" height="38" style="color:#FF7A59"/>
-          <use href="#lantern" x="124" y="34" width="19" height="28" style="color:#FFC13D"/>
-          <use href="#lantern" x="70" y="52" width="15" height="22" style="color:#FF8FB8"/>
-          <use href="#lantern" x="150" y="62" width="13" height="19" style="color:#FFA845"/>
-          <!-- 台北 101 -->
-          <g fill="#7FD6C2" stroke="#3B2A45" stroke-width="2" stroke-linejoin="round">
-            <path d="M213 6v14" fill="none"/>
-            <rect x="206" y="20" width="14" height="10" rx="1.5"/>
-            <path d="M202 37h22l3-7h-28z"/><path d="M202 44h22l3-7h-28z"/><path d="M202 51h22l3-7h-28z"/>
-            <path d="M202 58h22l3-7h-28z"/><path d="M202 65h22l3-7h-28z"/><path d="M202 72h22l3-7h-28z"/>
-            <path d="M202 79h22l3-7h-28z"/><path d="M202 86h22l3-7h-28z"/>
-            <rect x="199" y="86" width="28" height="24"/>
+          <g fill="#b9c9c1" opacity=".9">
+            <path d="M285 250l34-154h12l34 154z"/>
+            <path d="M300 204h50M306 177h38M312 151h26M318 124h14" fill="none" stroke="#eef0e9" stroke-width="5"/>
+            <path d="M315 95h16l-5-19h-6z"/>
+            <path d="M320 76v-20" stroke="#8c9e96" stroke-width="2"/>
           </g>
-          <!-- 愛心 -->
-          <path d="M252 50c-3-5-11-3-10 3 1 4 6 7 10 10 4-3 9-6 10-10 1-6-7-8-10-3z" fill="#FF6FAE" stroke="#3B2A45" stroke-width="2"/>
-          <!-- 東京鐵塔 -->
-          <g stroke="#3B2A45" stroke-width="2" stroke-linejoin="round">
-            <path d="M290 10v30" fill="none"/>
-            <path d="M270 110l17-70h6l17 70h-9l-11-47-11 47z" fill="#FF5A5A"/>
-            <rect x="282" y="44" width="16" height="5" rx="1.5" fill="#FFFFFF"/>
-            <rect x="279" y="64" width="22" height="6" rx="1.5" fill="#FFFFFF"/>
-            <path d="M276 92h28" fill="none"/>
+          <g fill="none" stroke="#9caa9f" stroke-width="3" stroke-linecap="round">
+            <path d="M0 48Q85 76 150 44T300 32"/>
+            <path d="M30 50l-15-13M63 59l-3-20M99 57l13-17M141 48l-1-19M181 41l14-15M222 36l-1-16"/>
           </g>
-          <path d="M-10 106C50 94 110 114 175 105S300 92 370 104V140H-10z" fill="#B7EBC4" stroke="#3B2A45" stroke-width="2.5"/>
-          <use href="#bubbletea" x="22" y="62" width="40" height="60"/>
+          <g fill="#d8a8a1" opacity=".88">
+            <ellipse cx="17" cy="33" rx="8" ry="4" transform="rotate(30 17 33)"/>
+            <ellipse cx="43" cy="47" rx="8" ry="4" transform="rotate(-25 43 47)"/>
+            <ellipse cx="76" cy="39" rx="8" ry="4" transform="rotate(45 76 39)"/>
+            <ellipse cx="110" cy="37" rx="8" ry="4" transform="rotate(-30 110 37)"/>
+            <ellipse cx="147" cy="29" rx="8" ry="4" transform="rotate(25 147 29)"/>
+            <ellipse cx="178" cy="32" rx="8" ry="4" transform="rotate(-20 178 32)"/>
+            <ellipse cx="209" cy="21" rx="8" ry="4" transform="rotate(35 209 21)"/>
+            <ellipse cx="242" cy="22" rx="8" ry="4" transform="rotate(-15 242 22)"/>
+          </g>
+          <g fill="#c58c84" opacity=".72">
+            <circle cx="34" cy="27" r="2"/><circle cx="63" cy="48" r="2"/><circle cx="92" cy="31" r="2"/>
+            <circle cx="127" cy="44" r="2"/><circle cx="161" cy="20" r="2"/><circle cx="198" cy="30" r="2"/>
+          </g>
+          <path d="M0 224Q130 208 252 226T500 222T720 215V250H0Z" fill="#b9c9bd" opacity=".7"/>
+          <path d="M0 238Q120 222 245 238T490 235T720 228" fill="none" stroke="#f9f3eb" stroke-width="2"/>
         </g>
-        <rect x="2" y="2" width="356" height="124" rx="20" fill="none" stroke="#3B2A45" stroke-width="2.5"/>
+        <rect x="1" y="1" width="718" height="248" rx="12" fill="none" stroke="#d9cec2" stroke-width="1.5"/>
       </svg>
 
       <div class="intro">
