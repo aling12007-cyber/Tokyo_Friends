@@ -564,8 +564,8 @@ async function renderGroup(g) {
   $('meet-text').textContent = g.meet || auto || t('meetDefault');
   let progress = $('meetup-progress');
   if (!progress) { progress = el('p', 'muted small meetup-progress'); progress.id = 'meetup-progress'; const meetCard = document.querySelector('#group .meet'); if (meetCard) meetCard.insertBefore(progress, meetCard.firstChild); }
-  const completed = Math.max(0, Math.min(2, Number(g.meetupsCompleted) || 0));
-  progress.textContent = lang === 'ja' ? `交流会の実施状況：${completed}/2 回完了` : lang === 'en' ? `Meetup progress: ${completed}/2 completed` : `聚會進度：已完成 ${completed}/2 次（至少舉辦兩次）`;
+  const completed = Math.max(0, Math.min(1, Number(g.meetupsCompleted) || 0));
+  progress.textContent = lang === 'ja' ? `交流会の実施状況：${completed}/1 回完了` : lang === 'en' ? `Meetup progress: ${completed}/1 completed` : `聚會進度：已完成 ${completed}/1 次（至少舉辦一次）`;
   const link = $('chat-link');
   const safeUrl = typeof g.chatUrl === 'string' && /^https:\/\//.test(g.chatUrl) ? g.chatUrl : '';
   link.hidden = !safeUrl;
