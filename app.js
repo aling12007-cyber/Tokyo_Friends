@@ -832,7 +832,6 @@ async function start() {
     if (!profile.ageWant.length) return void (err.textContent = t('errAgeWant'));
     if (!profile.prefs.some((id) => id.startsWith('size-'))) return void (err.textContent = t('errPrefSize'));
     if (!profile.lifestyle) return void (err.textContent = t('errLifestyle'));
-    if (!profile.freeTime.length) return void (err.textContent = t('errFreeTime'));
     if (!profile.availabilitySlots.length) return void (err.textContent = t('errCalendar'));
     if (!profile.years) return void (err.textContent = t('errYears'));
     if (!$('agree').checked) return void (err.textContent = t('errAgree'));
