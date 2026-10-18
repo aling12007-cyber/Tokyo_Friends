@@ -25,7 +25,7 @@ function t(key, vars) {
   return s;
 }
 
-const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...LANG_LEVELS, ...NATIONALITIES, NATIONALITY_NONE, ...AREA_GROUPS.flatMap((g) => g.items)];
+const ALL_OPTIONS = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFESTYLES, ...FREE_TIMES, ...PREF_GROUPS.flatMap((g) => g.items), ...AGES, AGE_ANY, ...LANG_LEVELS, ...GENDER_WANTS, ...NATIONALITIES, NATIONALITY_NONE, ...AREA_GROUPS.flatMap((g) => g.items)];
 const OPTION_MAP = new Map(ALL_OPTIONS.map((o) => [o[0], o]));
 // 有翻譯就翻譯，沒有（例如自己填寫的區域）就原樣顯示
 function label(id) { const o = OPTION_MAP.get(id); return o ? o[LI()] : id; }
