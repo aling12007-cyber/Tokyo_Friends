@@ -5,7 +5,7 @@
 //    - 至少有一個共同語言（「初學」程度不算）
 //    - 至少有一個共同的空閒時段（「不固定（看排班）」視為都可以）
 //    - 年齡層：雙方都在對方想認識的年齡層內（選「不在意年齡」就都可以）
-//    - 聚會人數喜好不衝突（只要小團體的人不會被放進多人組，反之亦然）
+//    - 聚會人數只提供 2 人或 3 人選項
 // 2. 相似度分數：共同興趣、想做的事、同一區、共同時段、氛圍、頻率等越多分數越高
 // 3. 從最難配的人開始，一個一個加入分數最高的人，目標 2–3 人；每組最多 3 人
 
@@ -28,12 +28,7 @@ export function regionOf(u) {
 }
 
 export function sizeType(u) {
-  const p = new Set(u.prefs || []);
-  const small = p.has('size-small') || p.has('size-pair');
-  const large = p.has('size-large');
-  if (small && !large) return 'small';
-  if (large && !small) return 'large';
-  return 'any';
+  return new Set(u.prefs || []).has('size-pair') ? 'pair' : 'small';
 }
 
 function slots(u) {
@@ -144,9 +139,9 @@ export function autoMatch(users) {
       const c = pool.filter((v) => v !== u && canJoin([u], v, type)).length;
       if (c < seedCount) { seed = u; seedCount = c; }
     }
-    const type = 'small';
     const seedPrefs = new Set(seed.prefs || []);
     const target = seedPrefs.has('size-pair') ? 2 : 3;
+    const type = target === 2 ? 'pair' : 'small';
     const group = [seed];
     pool = pool.filter((u) => u !== seed);
 
