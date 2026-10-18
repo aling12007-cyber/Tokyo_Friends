@@ -275,10 +275,10 @@ function savedCard(g) {
   card.appendChild(el('h3', null, (g.members || []).map((m) => m.nick).join('、')));
   card.appendChild(el('div', 'group-common', `共同點：${zhs(g.common) || '—'}`));
   card.appendChild(el('div', 'group-common', g.meet || `可見面：${zhs(g.meetTimes)}・${zh(g.meetArea)}附近`));
-  const done = Math.max(0, Math.min(2, Number(g.meetupsCompleted) || 0));
-  card.appendChild(el('div', 'group-common', `聚會進度：${done}/2 次`));
-  if (done < 2) { const b = el('button', 'btn btn-outline btn-small', `記錄已完成第 ${done + 1} 次聚會`); b.type = 'button'; b.addEventListener('click', async () => { try { await api.updateGroup(g.id, { meetupsCompleted: done + 1, lastMeetupRecordedAt: new Date().toISOString() }); await reloadSaved(); msg('已更新聚會進度。'); } catch { msg('更新失敗：請確認管理者權限與資料庫規則。'); } }); card.appendChild(b); }
-  else card.appendChild(el('div', 'group-common', '已達成至少兩次聚會的目標。'));
+  const done = Math.max(0, Math.min(1, Number(g.meetupsCompleted) || 0));
+  card.appendChild(el('div', 'group-common', `聚會進度：${done}/1 次`));
+  if (done < 2) { const b = el('button', 'btn btn-outline btn-small', `記錄已完成聚會`); b.type = 'button'; b.addEventListener('click', async () => { try { await api.updateGroup(g.id, { meetupsCompleted: done + 1, lastMeetupRecordedAt: new Date().toISOString() }); await reloadSaved(); msg('已更新聚會進度。'); } catch { msg('更新失敗：請確認管理者權限與資料庫規則。'); } }); card.appendChild(b); }
+  else card.appendChild(el('div', 'group-common', '已完成至少一次聚會的目標。'));
   if (g.chatUrl) card.appendChild(el('div', 'group-common', '已設定聊天連結'));
   const del = el('button', 'btn-link', '解散這組');
   del.type = 'button';
