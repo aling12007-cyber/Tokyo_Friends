@@ -13,6 +13,8 @@ const ALL = [...INTERESTS, ...ACTIVITIES, ...LANGS, ...WANTS, ...YEARS, ...LIFES
 const NAME = new Map(ALL.map((o) => [o[0], o[1]]));
 const zh = (id) => NAME.get(id) || id || '';
 const zhs = (ids) => (ids || []).map(zh).join('、');
+const timeLabel = (slot) => { const [date,block] = String(slot).split('|'); if (!block) return zh(slot); const d = new Date(`${date}T12:00:00`); const names = {morning:'10:00–12:00',afternoon:'13:00–16:00',evening:'18:00–21:00'}; return `${d.getMonth()+1}/${d.getDate()} ${names[block] || block}`; };
+const zhsTimes = (slots) => (slots || []).map(timeLabel).join('、');
 const zhLangs = (u) => (u.langs || []).map((l) => (u.langLevels && u.langLevels[l] ? `${zh(l)}(${zh(u.langLevels[l])})` : zh(l))).join('、');
 
 function el(tag, cls, text) {
@@ -154,7 +156,7 @@ function buildDoc(s) {
     memberUids: members.map((u) => u.uid),
     members: members.map((u) => ({ uid: u.uid, nick: u.nick, nationality: u.nationality || '', years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
     common: commonTags(members),
-    meetTimes: times.length ? times : ['irregular'],
+    meetTimes: times,
     meetArea: commonArea(members),
     chatUrl: /^https:\/\//.test(s.chatUrl.trim()) ? s.chatUrl.trim() : ''
   };
@@ -209,7 +211,7 @@ function personRow(u, fromIdx) {
   top.append(el('span', 'person-name', u.nick || '（無暱稱）'), el('span', 'person-area', zh(u.area)));
   if (u.nationality && u.nationality !== 'none') top.appendChild(el('span', 'person-nat', zh(u.nationality)));
   const meta = el('div', 'person-meta', [
-    zh(u.age), zh(u.lifestyle), zhs(u.freeTime), zhLangs(u),
+    zh(u.age), zh(u.lifestyle), u.availabilitySlots ? `可選日期 ${u.availabilitySlots.length} 個時段` : zhs(u.freeTime), zhLangs(u),
     sizeType(u) === 'small' ? '小團體' : sizeType(u) === 'large' ? '多人' : '人數不拘'
   ].filter(Boolean).join('｜'));
   const likes = el('div', 'person-likes', zhs([...(u.interests || []).slice(0, 5), ...(u.activities || []).slice(0, 2)]));
@@ -246,7 +248,7 @@ function suggestionCard(s, i) {
   const common = commonTags(s.members);
   const times = [...groupSlots(s.members)];
   card.appendChild(el('div', 'group-common', `共同點：${zhs(common) || '—'}`));
-  card.appendChild(el('div', 'group-common', `可見面：${zhs(times) || '時間再討論'}・${zh(commonArea(s.members))}附近`));
+  card.appendChild(el('div', 'group-common', `共同空檔：${zhsTimes(times) || '沒有共同空檔'}・${zh(commonArea(s.members))}附近`));
 
   for (const u of s.members) card.appendChild(personRow(u, i));
 
@@ -274,7 +276,7 @@ function savedCard(g) {
   const card = el('article', 'card group-card saved-card');
   card.appendChild(el('h3', null, (g.members || []).map((m) => m.nick).join('、')));
   card.appendChild(el('div', 'group-common', `共同點：${zhs(g.common) || '—'}`));
-  card.appendChild(el('div', 'group-common', g.meet || `可見面：${zhs(g.meetTimes)}・${zh(g.meetArea)}附近`));
+  card.appendChild(el('div', 'group-common', g.meet || `共同空檔：${zhsTimes(g.meetTimes)}・${zh(g.meetArea)}附近`));
   const done = Math.max(0, Math.min(1, Number(g.meetupsCompleted) || 0));
   card.appendChild(el('div', 'group-common', `聚會進度：${done}/1 次`));
   if (done < 2) { const b = el('button', 'btn btn-outline btn-small', `記錄已完成聚會`); b.type = 'button'; b.addEventListener('click', async () => { try { await api.updateGroup(g.id, { meetupsCompleted: done + 1, lastMeetupRecordedAt: new Date().toISOString() }); await reloadSaved(); msg('已更新聚會進度。'); } catch { msg('更新失敗：請確認管理者權限與資料庫規則。'); } }); card.appendChild(b); }
