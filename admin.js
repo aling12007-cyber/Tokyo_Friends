@@ -38,11 +38,12 @@ async function makeFirebaseAdmin() {
       const snap = await fs.getDocs(fs.collection(db, 'users'));
       return snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
     },
-    async listGroups(month) {
-      const snap = await fs.getDocs(fs.query(fs.collection(db, 'groups'), fs.where('month', '==', month)));
+    async listGroups(week) {
+      const snap = await fs.getDocs(fs.query(fs.collection(db, 'groups'), fs.where('week', '==', week)));
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     },
     async createGroup(doc) { await fs.addDoc(fs.collection(db, 'groups'), { ...doc, createdAt: fs.serverTimestamp() }); },
+    async updateGroup(id, patch) { await fs.updateDoc(fs.doc(db, 'groups', id), patch); },
     async deleteGroup(id) { await fs.deleteDoc(fs.doc(db, 'groups', id)); }
   };
 }
@@ -92,8 +93,9 @@ function makeDemoAdmin() {
     waitUser: async () => ({ uid: 'demo-admin' }),
     isAdmin: async () => true,
     listUsers: async () => users,
-    listGroups: async (month) => read().filter((g) => g.month === month),
+    listGroups: async (week) => read().filter((g) => g.week === week),
     async createGroup(doc) { const all = read(); all.push({ ...doc, id: `g${Date.now()}${Math.floor(rnd() * 1000)}` }); write(all); },
+    async updateGroup(id, patch) { write(read().map((g) => g.id === id ? { ...g, ...patch } : g)); },
     async deleteGroup(id) { write(read().filter((g) => g.id !== id)); }
   };
 }
@@ -105,16 +107,17 @@ let saved = [];        // 這個月已建立的小組
 let suggestions = [];  // [{ members: [user], chatUrl, meet }]
 let pool = [];         // 還沒分組的人
 
-function thisMonth() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+function thisWeek() {
+  const d = new Date(); const day = (d.getDay() + 6) % 7; d.setDate(d.getDate() - day + 3);
+  const first = new Date(d.getFullYear(), 0, 4); const fd = (first.getDay() + 6) % 7; first.setDate(first.getDate() - fd + 3);
+  return `${d.getFullYear()}-W${String(1 + Math.round((d - first) / 604800000)).padStart(2, '0')}`;
 }
 
 function msg(text) { $('admin-msg').textContent = text; }
 
 async function loadMonth() {
-  const month = $('month').value;
-  saved = await api.listGroups(month);
+  const week = $('week').value;
+  saved = await api.listGroups(week);
   const taken = new Set(saved.flatMap((g) => g.memberUids || []));
   pool = users.filter((u) => !taken.has(u.uid));
   suggestions = [];
@@ -145,7 +148,9 @@ function buildDoc(s) {
   const members = s.members;
   const times = [...groupSlots(members)];
   const doc = {
-    month: $('month').value,
+    week: $('week').value,
+    status: 'published',
+    meetupsCompleted: 0,
     memberUids: members.map((u) => u.uid),
     members: members.map((u) => ({ uid: u.uid, nick: u.nick, nationality: u.nationality || '', years: u.years || '', langs: u.langs || [], langLevels: u.langLevels || {} })),
     common: commonTags(members),
@@ -182,7 +187,7 @@ async function saveAll() {
 }
 
 async function reloadSaved() {
-  saved = await api.listGroups($('month').value);
+  saved = await api.listGroups($('week').value);
   render();
 }
 
@@ -270,6 +275,10 @@ function savedCard(g) {
   card.appendChild(el('h3', null, (g.members || []).map((m) => m.nick).join('、')));
   card.appendChild(el('div', 'group-common', `共同點：${zhs(g.common) || '—'}`));
   card.appendChild(el('div', 'group-common', g.meet || `可見面：${zhs(g.meetTimes)}・${zh(g.meetArea)}附近`));
+  const done = Math.max(0, Math.min(2, Number(g.meetupsCompleted) || 0));
+  card.appendChild(el('div', 'group-common', `聚會進度：${done}/2 次`));
+  if (done < 2) { const b = el('button', 'btn btn-outline btn-small', `記錄已完成第 ${done + 1} 次聚會`); b.type = 'button'; b.addEventListener('click', async () => { try { await api.updateGroup(g.id, { meetupsCompleted: done + 1, lastMeetupRecordedAt: new Date().toISOString() }); await reloadSaved(); msg('已更新聚會進度。'); } catch { msg('更新失敗：請確認管理者權限與資料庫規則。'); } }); card.appendChild(b); }
+  else card.appendChild(el('div', 'group-common', '已達成至少兩次聚會的目標。'));
   if (g.chatUrl) card.appendChild(el('div', 'group-common', '已設定聊天連結'));
   const del = el('button', 'btn-link', '解散這組');
   del.type = 'button';
@@ -331,11 +340,11 @@ async function start() {
   }
 
   $('console').hidden = false;
-  $('month').value = thisMonth();
+  $('week').value = thisWeek();
   users = await api.listUsers();
   await loadMonth();
 
-  $('month').addEventListener('change', loadMonth);
+  $('week').addEventListener('change', loadMonth);
   $('run').addEventListener('click', runMatch);
   $('save-all').addEventListener('click', saveAll);
 }
