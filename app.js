@@ -201,7 +201,7 @@ function renderAvailabilityCalendar() {
   applyAvailabilityRestrictions();
   box.innerHTML = '';
   const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
-  const end = new Date(start); end.setDate(end.getDate()+55);
+  const end = new Date(); end.setHours(0,0,0,0); end.setMonth(end.getMonth()+1);
   let week = null, row = null;
   for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
     const monday = new Date(d); monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
