@@ -333,10 +333,9 @@ export const FREE_TIME_DEFAULTS = {
 
 // 交友傾向：single = 這一類只能選一個
 export const PREF_GROUPS = [
-  { key: 'size', label: ['聚會人數', '参加したい人数', 'Group size'], items: [
-    ['size-small', '小團體（3 人以下）', '少人数（3 人以下）', 'Small groups (up to 3)'],
-    ['size-large', '多人聚會（5 人以上）', '大人数（5 人以上）', 'Bigger groups (5+)'],
-    ['size-pair', '一對一也 OK', '1 対 1 も OK', 'One-on-one is fine too']
+  { key: 'size', single: true, label: ['聚會人數', '参加したい人数', 'Group size'], items: [
+    ['size-pair', '2 人（一對一）', '2 人（1 対 1）', '2 people (one-on-one)'],
+    ['size-small', '3 人小組', '3 人グループ', '3-person group']
   ] },
   { key: 'freq', single: true, label: ['見面頻率', '会う頻度', 'How often'], items: [
     ['freq-weekly', '每週', '毎週', 'Weekly'],
