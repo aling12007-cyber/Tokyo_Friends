@@ -30,7 +30,7 @@ export const T = {
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
     langLevelPick: '選擇程度', errLangLevel: '請幫每個語言選擇程度。',
-    langs: '會說的語言', wants: '交友目的',
+    langs: '會說的語言', wants: '交友目的', genderWant: '希望認識的性別', sumGenderWant: '性別偏好', errGenderWant: '請選擇希望認識的性別。',
     ageTitle: '年齡層', myAge: '你的年齡層', agePick: '請選擇', ageWant: '想認識的年齡層（可複選）', ageHint: '本服務限 18 歲以上使用。', errAge: '請選擇你的年齡層。', errAgeWant: '請選擇想認識的年齡層，或選「不在意年齡」。', sumAge: '年齡',
     friendStyle: '交友傾向', friendStyleHint: '聚會人數必選，其他選填。', errPrefSize: '請選擇想參加的聚會人數。', sumStyle: '傾向',
     freeTime: '空閒時間', lifestyle: '你的生活型態', lifestylePick: '請選擇', freeTimeWhen: '通常什麼時候有空（可複選）',
@@ -85,7 +85,7 @@ export const T = {
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
     langLevelPick: 'レベルを選ぶ', errLangLevel: 'それぞれの言語のレベルを選んでください。',
-    langs: '話せる言語', wants: '交流の目的',
+    langs: '話せる言語', wants: '交流の目的', genderWant: '出会いたい相手の性別', sumGenderWant: '性別の希望', errGenderWant: '希望する相手の性別を選んでください。',
     ageTitle: '年齢層', myAge: 'あなたの年齢層', agePick: '選んでください', ageWant: '出会いたい年齢層（複数選択可）', ageHint: '18 歳以上の方のみご利用いただけます。', errAge: '年齢層を選んでください。', errAgeWant: '出会いたい年齢層を選ぶか、「年齢は気にしない」を選んでください。', sumAge: '年齢',
     friendStyle: '友達づくりのスタイル', friendStyleHint: '人数は必須、ほかは任意です。', errPrefSize: '参加したいグループの人数を選んでください。', sumStyle: 'スタイル',
     freeTime: '空いている時間', lifestyle: 'ライフスタイル', lifestylePick: '選んでください', freeTimeWhen: 'だいたい空いている時間（複数選択可）',
@@ -140,7 +140,7 @@ export const T = {
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
     langLevelPick: 'Choose level', errLangLevel: 'Please choose a level for each language.',
-    langs: 'Languages you speak', wants: 'Purpose of Connecting',
+    langs: 'Languages you speak', wants: 'Purpose of Connecting', genderWant: 'Gender preference', sumGenderWant: 'Gender preference', errGenderWant: 'Please choose a gender preference.',
     ageTitle: 'Age', myAge: 'Your age group', agePick: 'Choose one', ageWant: 'Ages you’d like to meet (pick any)', ageHint: 'You must be 18 or older to use this service.', errAge: 'Please choose your age group.', errAgeWant: 'Please choose the ages you’d like to meet, or “Any age”.', sumAge: 'Age',
     friendStyle: 'Your friendship style', friendStyleHint: 'Group size is required; the rest is optional.', errPrefSize: 'Please choose a group size.', sumStyle: 'Style',
     freeTime: 'Free time', lifestyle: 'Your lifestyle', lifestylePick: 'Choose one', freeTimeWhen: 'When are you usually free? (pick any)',
@@ -392,3 +392,10 @@ export const NATIONALITIES = [
   ['mx', '墨西哥', 'メキシコ', 'Mexico']
 ];
 export const NATIONALITY_NONE = ['none', '不想透露', '答えたくない', 'Prefer not to say'];
+
+export const GENDER_WANTS = [
+  ['male', '男性', '男性', 'Men'],
+  ['female', '女性', '女性', 'Women'],
+  ['nonbinary', '非二元／其他性別', 'ノンバイナリー／その他', 'Non-binary / another gender'],
+  ['any', '不在意性別', '性別は気にしない', 'Any gender']
+];
