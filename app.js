@@ -164,6 +164,14 @@ const picked = { interests: new Set(), activities: new Set(), langs: new Set(), 
 let genderWant = 'any';
 const availabilityPicked = new Set();
 const AVAILABILITY_BLOCKS = [['morning','10:00–12:00'],['afternoon','13:00–16:00'],['evening','18:00–21:00']];
+const JP_HOLIDAYS = new Map([
+  ['2026-11-03','文化の日'],['2026-11-23','勤労感謝の日'],
+  ['2027-01-01','元日'],['2027-01-11','成人の日'],['2027-02-11','建国記念の日'],
+  ['2027-02-23','天皇誕生日'],['2027-03-21','春分の日'],['2027-03-22','振替休日'],
+  ['2027-04-29','昭和の日'],['2027-05-03','憲法記念日'],['2027-05-04','みどりの日'],
+  ['2027-05-05','こどもの日'],['2027-07-19','海の日'],['2027-08-11','山の日'],
+  ['2027-09-20','敬老の日'],['2027-09-23','秋分の日'],['2027-10-11','スポーツの日']
+]);
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function availabilityAllowed(day, block, lifestyle) {
   const weekday = day.getDay() >= 1 && day.getDay() <= 5;
@@ -202,8 +210,13 @@ function renderAvailabilityCalendar() {
     if (weekKey !== week) { week = weekKey; row = el('section','calendar-week'); row.appendChild(el('h3','calendar-week-title',`${d.getFullYear()}/${d.getMonth()+1}・第 ${Math.ceil(d.getDate()/7)} 週`)); box.appendChild(row); }
     const day = new Date(d); const key = dateKey(day);
     const dayCard = el('div','calendar-day');
+    const holiday = JP_HOLIDAYS.get(key);
     const labelText = `${['日','一','二','三','四','五','六'][day.getDay()]}・${day.getMonth()+1}/${day.getDate()}`;
-    dayCard.appendChild(el('div','calendar-date',labelText));
+    const dateLabel = el('div','calendar-date');
+    dateLabel.appendChild(el('span',null,labelText));
+    if (holiday) dateLabel.appendChild(el('span','holiday-label',holiday));
+    dayCard.appendChild(dateLabel);
+    if (holiday) dayCard.classList.add('calendar-day-holiday');
     const blocks = el('div','calendar-blocks');
     for (const [id,time] of AVAILABILITY_BLOCKS) {
       const slot = `${key}|${id}`;
