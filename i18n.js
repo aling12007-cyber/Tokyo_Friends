@@ -30,7 +30,7 @@ export const T = {
     interests: '興趣（最多 8 個）', selectedN: '已選 {n} 個',
     activities: '想一起做的事', activityOtherPh: '其他想做的事（選填）',
     langLevelPick: '選擇程度', errLangLevel: '請幫每個語言選擇程度。',
-    langs: '會說的語言', wants: '想找什麼樣的朋友',
+    langs: '會說的語言', wants: '交友目的',
     ageTitle: '年齡層', myAge: '你的年齡層', agePick: '請選擇', ageWant: '想認識的年齡層（可複選）', ageHint: '本服務限 18 歲以上使用。', errAge: '請選擇你的年齡層。', errAgeWant: '請選擇想認識的年齡層，或選「不在意年齡」。', sumAge: '年齡',
     friendStyle: '交友傾向', friendStyleHint: '聚會人數必選，其他選填。', errPrefSize: '請選擇想參加的聚會人數。', sumStyle: '傾向',
     freeTime: '空閒時間', lifestyle: '你的生活型態', lifestylePick: '請選擇', freeTimeWhen: '通常什麼時候有空（可複選）',
@@ -47,7 +47,7 @@ export const T = {
     rulesTitle: '社群守則',
     rulesList: ['只用暱稱，不要求別人提供真名、住址、工作地點。', '禁止推銷、直銷、傳教、募款、招攬投資。', '禁止騷擾或以交往為目的的私訊；這裡是交朋友的地方。', '第一次見面請選公開場所，並告訴信任的人你去哪裡。', '遇到不舒服的事請檢舉，違規者會被移除。'],
     gotIt: '我知道了', loading: '載入中…',
-    sumArea: '區域', sumInterests: '興趣', sumTodo: '想一起', sumLangs: '語言', sumWants: '想找', sumYears: '在日',
+    sumArea: '區域', sumInterests: '興趣', sumTodo: '想一起', sumLangs: '語言', sumWants: '交友目的', sumYears: '在日',
     you: '你',
     errTooMany: '嘗試次數太多，請稍後再試。',
     errGeneric: '發生錯誤，請稍後再試。', errNick: '請填寫暱稱。', errArea: '請選擇區域。', errAreaOther: '請填寫你的區域。', errInterest: '請至少選一個興趣。',
@@ -85,7 +85,7 @@ export const T = {
     interests: '趣味（8 個まで）', selectedN: '{n} 個選択中',
     activities: '一緒にやりたいこと', activityOtherPh: 'その他やりたいこと（任意）',
     langLevelPick: 'レベルを選ぶ', errLangLevel: 'それぞれの言語のレベルを選んでください。',
-    langs: '話せる言語', wants: 'どんな友達を探してる？',
+    langs: '話せる言語', wants: '交流の目的',
     ageTitle: '年齢層', myAge: 'あなたの年齢層', agePick: '選んでください', ageWant: '出会いたい年齢層（複数選択可）', ageHint: '18 歳以上の方のみご利用いただけます。', errAge: '年齢層を選んでください。', errAgeWant: '出会いたい年齢層を選ぶか、「年齢は気にしない」を選んでください。', sumAge: '年齢',
     friendStyle: '友達づくりのスタイル', friendStyleHint: '人数は必須、ほかは任意です。', errPrefSize: '参加したいグループの人数を選んでください。', sumStyle: 'スタイル',
     freeTime: '空いている時間', lifestyle: 'ライフスタイル', lifestylePick: '選んでください', freeTimeWhen: 'だいたい空いている時間（複数選択可）',
@@ -102,7 +102,7 @@ export const T = {
     rulesTitle: 'コミュニティルール',
     rulesList: ['ニックネームのみ。本名・住所・勤務先を聞かないでください。', '営業・マルチ・宗教勧誘・募金・投資の勧誘は禁止です。', 'ハラスメントや恋愛目的の DM は禁止。ここは友達作りの場です。', '初めて会うときは公共の場所で。行き先を信頼できる人に伝えましょう。', '嫌なことがあったら通報してください。違反した人は削除します。'],
     gotIt: 'わかりました', loading: '読み込み中…',
-    sumArea: 'エリア', sumInterests: '趣味', sumTodo: 'やりたいこと', sumLangs: '言語', sumWants: '探している', sumYears: '在日歴',
+    sumArea: 'エリア', sumInterests: '趣味', sumTodo: 'やりたいこと', sumLangs: '言語', sumWants: '交流の目的', sumYears: '在日歴',
     you: 'あなた',
     errTooMany: '試行回数が多すぎます。しばらくしてからお試しください。',
     errGeneric: 'エラーが発生しました。しばらくしてからお試しください。', errNick: 'ニックネームを入力してください。', errArea: 'エリアを選んでください。', errAreaOther: 'エリアを入力してください。', errInterest: '趣味を 1 つ以上選んでください。',
@@ -140,7 +140,7 @@ export const T = {
     interests: 'Interests (up to 8)', selectedN: '{n} selected',
     activities: 'Things you’d like to do together', activityOtherPh: 'Anything else? (optional)',
     langLevelPick: 'Choose level', errLangLevel: 'Please choose a level for each language.',
-    langs: 'Languages you speak', wants: 'What kind of friends?',
+    langs: 'Languages you speak', wants: 'Purpose of Connecting',
     ageTitle: 'Age', myAge: 'Your age group', agePick: 'Choose one', ageWant: 'Ages you’d like to meet (pick any)', ageHint: 'You must be 18 or older to use this service.', errAge: 'Please choose your age group.', errAgeWant: 'Please choose the ages you’d like to meet, or “Any age”.', sumAge: 'Age',
     friendStyle: 'Your friendship style', friendStyleHint: 'Group size is required; the rest is optional.', errPrefSize: 'Please choose a group size.', sumStyle: 'Style',
     freeTime: 'Free time', lifestyle: 'Your lifestyle', lifestylePick: 'Choose one', freeTimeWhen: 'When are you usually free? (pick any)',
@@ -157,7 +157,7 @@ export const T = {
     rulesTitle: 'Community rules',
     rulesList: ['Nicknames only — don’t ask for real names, addresses or workplaces.', 'No sales, MLM, religious recruiting, fundraising or investment pitches.', 'No harassment or dating-focused messages — this is for friendship.', 'Meet in public places the first time and tell someone you trust where you’re going.', 'Report anything that makes you uncomfortable. Rule-breakers will be removed.'],
     gotIt: 'Got it', loading: 'Loading…',
-    sumArea: 'Area', sumInterests: 'Interests', sumTodo: 'Want to do', sumLangs: 'Languages', sumWants: 'Looking for', sumYears: 'In Japan',
+    sumArea: 'Area', sumInterests: 'Interests', sumTodo: 'Want to do', sumLangs: 'Languages', sumWants: 'Purpose', sumYears: 'In Japan',
     you: 'you',
     errTooMany: 'Too many attempts. Please try again later.',
     errGeneric: 'Something went wrong. Please try again later.', errNick: 'Please enter a nickname.', errArea: 'Please choose an area.', errAreaOther: 'Please type in your area.', errInterest: 'Please pick at least one interest.',
@@ -266,8 +266,8 @@ export const LANGS = [
 ];
 
 export const WANTS = [
-  ['chat', '聊天朋友', '話し相手', 'Someone to chat with'], ['hangout', '一起出去玩', '遊び友達', 'Friends to hang out with'],
-  ['exchange', '語言交換', '言語交換', 'Language exchange'], ['help', '生活互助', '生活の助け合い', 'Help with daily life']
+  ['chat', '聊天', 'おしゃべり', 'Chat'], ['hangout', '一起出去玩', '一緒に遊びに行く', 'Hang out together'],
+  ['career', '職涯與成長交流', 'キャリア・成長について交流', 'Career & growth networking']
 ];
 
 export const YEARS = [
